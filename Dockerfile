@@ -11,5 +11,5 @@ EXPOSE 5900
 
 CMD Xvfb :0 -screen 0 1024x768x24 & \
     openbox & \
-    x11vnc -forever -loop & \
+    x11vnc -nopw -q -forever -loop & \
     wine /root/wine/drive_c/Program\ Files/Backblaze/bzbui.exe -noqiet
