@@ -5,7 +5,7 @@ RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/reposi
     apk --no-cache add wine
 
 ENV DISPLAY :0
-ENV WINEPREFIX /root/wine/
+ENV WINEPREFIX /wine/
 
 EXPOSE 5900
 
