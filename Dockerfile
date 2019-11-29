@@ -1,6 +1,8 @@
 FROM i386/alpine
 
-RUN apk --update --no-cache add xvfb x11vnc wine openbox samba-winbind-clients
+RUN apk --update --no-cache add xvfb x11vnc openbox samba-winbind-clients
+RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
+    apk --no-cache add wine
 
 ENV DISPLAY :0
 ENV WINEPREFIX /root/wine/
