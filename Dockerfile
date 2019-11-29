@@ -1,6 +1,6 @@
 FROM i386/alpine
 
-RUN apk --update --no-cache add xvfb x11vnc wine openbox
+RUN apk --update --no-cache add xvfb x11vnc wine openbox samba-winbind-clients
 
 ENV DISPLAY :0
 ENV WINEPREFIX /root/wine/
