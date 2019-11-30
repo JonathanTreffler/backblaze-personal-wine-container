@@ -7,6 +7,9 @@ RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/reposi
 ENV DISPLAY :0
 ENV WINEPREFIX /wine/
 
+# Disable WINE Debug messages
+ENV WINEDEBUG -all
+
 EXPOSE 5900
 
 CMD Xvfb :0 -screen 0 1024x768x24 & \
