@@ -2,7 +2,7 @@ This Docker container runs the Backblaze personal backup client via WINE, so tha
 
 It runs the Backblaze client and starts a virtual X server with Openbox and a VNC server, so that you can interact with it.
 You need to open up port 5900 for VNC and mount a WINE prefix with pre-installed Backblaze client at `/wine/` for this to work.  
-You can install it using this container too (if you can somehow get your BZ credetials to go through the VNC properly that is), just mount the installer somewhere, mount your persistent storage at `/wine/`, override the container's CMD with `winefile`, connect via VNC, run the installer exe and click through the menus.
+You can install it using this container too (if you can somehow get your BZ credetials to go through the VNC properly that is), just mount the installer somewhere, mount your persistent storage at `/wine/`, override the container's CMD' last line with `winefile`, connect via VNC, run the installer exe and click through the menus.
 
 Example `docker run`:
 
