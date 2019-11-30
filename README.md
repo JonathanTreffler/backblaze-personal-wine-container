@@ -19,4 +19,4 @@ I have my WINE prefix set up in a way that `dosdrives/d:` is a symlink to `drive
 Warning: The backblaze client is not an init system (who knew) and doesn't clean up its zombie children. This will cause it to fill up your system's PID limit within a few hours which prevents new processes from being created system-wide, would not recommend.  
 The `--init` flag installs a tiny process that can actually do a few init things like wait()ing children in place of the backblaze client as PID 1.  
 Note: WINE spits out a stub warning every few seconds, you might want to disable logging.  
-Info: Backblaze will create a `.bzvol` directory on every hard drive it's configured to back up in which it'll store a full copy of files >100M split into 10M parts. Mount accordingly if you want to preserve SSD erase cycles.
+Info: Backblaze will create a `.bzvol` directory in the root of every hard drive it's configured to back up in which it'll store a full copy of files >100M split into 10M parts. Mount accordingly if you want to preserve SSD erase cycles.
