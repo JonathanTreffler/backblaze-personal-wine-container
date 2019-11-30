@@ -12,7 +12,7 @@ Example `docker run`:
     -p '5900:5900' \
     -v 'backblaze:/wine/' \
     -v '/dir/you/want/to/back/up/:/wine/drive_d/' \
-    atemu12/backblaze-personal-wine-docker
+    atemu12/backblaze-personal-wine
 
 I have my WINE prefix set up in a way that `dosdrives/d:` is a symlink to `drive_d` and told backblaze to back up "D:\\" and ignore everything on "C:\\".
 
