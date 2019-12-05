@@ -12,7 +12,10 @@ ENV WINEDEBUG -all
 
 EXPOSE 5900
 
-CMD Xvfb :0 -screen 0 1024x768x24 & \
+RUN echo " \
+		Xvfb :0 -screen 0 1024x768x24 & \
     openbox & \
     x11vnc -nopw -q -forever -loop & \
-    wine "$WINEPREFIX"/drive_c/Program\ Files/Backblaze/bzbui.exe -noqiet
+    wine "$WINEPREFIX"/drive_c/Program\ Files/Backblaze/bzbui.exe -noqiet \
+		"> /start.sh
+CMD /start.sh
