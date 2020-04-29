@@ -18,4 +18,4 @@ RUN echo " \
     x11vnc -nopw -q -forever -loop & \
     wine "$WINEPREFIX"/drive_c/Program\ Files/Backblaze/bzbui.exe -noqiet \
 		"> /start.sh
-CMD /start.sh
+CMD sh /start.sh
