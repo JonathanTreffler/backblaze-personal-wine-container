@@ -18,7 +18,6 @@ RUN apt-get autoremove -y
 
 ENV WINEDEBUG=fixme-all
 
-RUN winetricks msxml6
 
 #RUN dpkg --add-architecture i386
 #RUN apt update
