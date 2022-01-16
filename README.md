@@ -17,6 +17,10 @@ docker run \
 docker exec --user app backblaze_personal_backup ln -s /drive_d/ /config/wine/dosdevices/d:
 ````
 
+````
+docker restart backblaze_personal_backup
+````
+
 
 
 Warning: The backblaze client is not an init system (who knew) and doesn't clean up its zombie children. This will cause it to fill up your system's PID limit within a few hours which prevents new processes from being created system-wide, would not recommend.  
