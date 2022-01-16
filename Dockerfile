@@ -16,24 +16,19 @@ RUN apt-get install -y winetricks
 RUN apt-get clean -y
 RUN apt-get autoremove -y
 
-ENV WINEDEBUG=fixme-all
-
-
-#RUN dpkg --add-architecture i386
-#RUN apt update
-#RUN apt install -y curl wine wine64 wine32 libwine fonts-wine
-
-#RUN echo "https://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-#RUN apk --no-cache add wine
-
 #ENV DISPLAY :0
+
 ENV WINEPREFIX /config/wine/
 
+RUN \
+    APP_ICON_URL=https://www.backblaze.com/pics/cloud-blaze.png && \
+    install_app_icon.sh "$APP_ICON_URL"
+
+ENV APP_NAME="Backblaze Personal Backup"
+
 # Disable WINE Debug messages
-#ENV WINEDEBUG -all
+ENV WINEDEBUG -all
 
 EXPOSE 5900
 
 COPY startapp.sh /startapp.sh
-
-#CMD sh /start.sh
