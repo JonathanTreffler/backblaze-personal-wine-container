@@ -39,7 +39,7 @@ docker run \
 
 1. Wait for the Download to finish
 
-1. Add your storage path as a wine drive, so Backblaze can acess it
+1. Add your storage path as a wine drive, so Backblaze can access it
 
     ````shell
     docker exec --user app backblaze_personal_backup ln -s /drive_d/ /config/wine/dosdevices/d:
@@ -97,9 +97,9 @@ docker run \
 
   - (Speculation: I think this only happens, when no volume is mounted at /config/ and docker manages the folder instead of the volume)
 
-- The backup folder mounted as drive d is not being backuped
+- The backup folder mounted as drive D is not being backed up
 
-  - Explanation: Depending on when you added drive d to your wine configuration, the backblaze installer might not recognize it
+  - Explanation: Depending on when you added drive D to your wine configuration, the Backblaze installer might not recognize it
 
   - Solution:
     - Open the Backblaze settings
@@ -124,6 +124,6 @@ docker run \
 
 ## Additional Information
 
-Warning: The backblaze client is not an init system (who knew) and doesn't clean up its zombie children. This will cause it to fill up your system's PID limit within a few hours which prevents new processes from being created system-wide, would not recommend.  
+Warning: The Backblaze client is not an init system (who knew) and doesn't clean up its zombie children. This will cause it to fill up your system's PID limit within a few hours which prevents new processes from being created system-wide, would not recommend.  
 The `--init` flag installs a tiny process that can actually do a few init things like wait()ing children in place of the backblaze client as PID 1.  
 Info: Backblaze will create a `.bzvol` directory in the root of every hard drive it's configured to back up in which it'll store a full copy of files >100M split into 10M parts. Mount accordingly if you want to preserve SSD erase cycles.
