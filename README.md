@@ -124,9 +124,18 @@ docker run \
 
 ## Additional Information
 
-Warning: The Backblaze client is not an init system (who knew) and doesn't clean up its zombie children. This will cause it to fill up your system's PID limit within a few hours which prevents new processes from being created system-wide, would not recommend.  
+1. Warning: The Backblaze client is not an init system (who knew) and doesn't clean up its zombie children. This will cause it to fill up your system's PID limit within a few hours which prevents new processes from being created system-wide, would not recommend.  
 The `--init` flag installs a tiny process that can actually do a few init things like wait()ing children in place of the backblaze client as PID 1.  
-Info: Backblaze will create a `.bzvol` directory in the root of every hard drive it's configured to back up in which it'll store a full copy of files >100M split into 10M parts. Mount accordingly if you want to preserve SSD erase cycles.
-
+2. Backblaze will create a `.bzvol` directory in the root of every hard drive it's configured to back up in which it'll store a full copy of files >100M split into 10M parts. Mount accordingly if you want to preserve SSD erase cycles.
+3. You can browse the files accessible to Backblaze using:
+    ````shell
+    docker exec --user app backblaze_personal_backup wine explorer
+    ````
+4. You can open the Wine Config using:
+    ````shell
+    docker exec --user app backblaze_personal_backup winecfg
+    ````
 # Credits
 This was originally developed by @Atemu (https://github.com/Atemu/backblaze-personal-wine-container)
+
+The Backblaze logo and application is the property of Backblaze, Inc.
