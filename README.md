@@ -135,6 +135,11 @@ The `--init` flag installs a tiny process that can actually do a few init things
     ````shell
     docker exec --user app backblaze_personal_backup winecfg
     ````
+5. The window size of Backblaze Personal Backup seems to be hardcoded, so it looks nicer (less black bars on the sides) when you set the size of the virtual VNC screen to the same size. The widest dialog the client opens is the recovery dialog with 657px and the tallest dialog are the settings with 453px. In order to fit the windows decorations i would suggest a screen size of 657x473. This can be set using environment variables when creating the docker:
+    ````shell
+    docker run ... -e "DISPLAY_WIDTH=657" -e "DISPLAY_HEIGHT=473" ...
+    ````
+
 # Credits
 This was originally developed by @Atemu (https://github.com/Atemu/backblaze-personal-wine-container)
 
