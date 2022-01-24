@@ -1,17 +1,221 @@
-This Docker container runs the Backblaze personal backup client via WINE, so that you can back up your files with the separation and portability capabilities of Docker.
+# Backblaze Personal Wine Container
 
-It runs the Backblaze client and starts a virtual X server with Openbox and a VNC server, so that you can interact with it.
+This Docker container runs the Backblaze personal backup client via WINE, so that you can back up your files with the separation and portability capabilities of Docker on Linux.
+
+It runs the Backblaze client and starts a virtual X server and a VNC server with Web GUI, so that you can interact with it.
+
+## Table of Content
+
+   * **[Backblaze Personal Wine Container](#backblaze-personal-wine-container)**
+      * [Table of Content](#table-of-content)
+      * [Docker Images](#docker-images)
+         * [Content](#content)
+         * [Tags](#tags)
+      * [Environment Variables](#environment-variables)
+      * [Config Directory](#config-directory)
+      * [Ports](#ports)
+      * [Accessing the GUI](#accessing-the-gui)
+      * [Security](#security)
+         * [SSVNC](#ssvnc)
+         * [Certificates](#certificates)
+         * [VNC Password](#vnc-password)
+         * [DH Parameters](#dh-parameters)
+      * **[Installation](#installation)**
+      * [Additional Information](#additional-information)
+      * [Credits](#credits)
+
+## Docker Images
+### Content
+Here are the main components of this image:
+  * [S6-overlay], a process supervisor for containers.
+  * [x11vnc], a X11 VNC server.
+  * [xvfb], a X virtual framebuffer display server.
+  * [openbox], a windows manager.
+  * [noVNC], a HTML5 VNC client.
+  * [NGINX], a high-performance HTTP server.
+  * [stunnel], a proxy encrypting arbitrary TCP connections with SSL/TLS.
+  * [WINE], a compatibility layer for windows applications on Linux
+  * [Winetricks] is a helper script to download and install various redistributable runtime libraries needed to run some programs in Wine
+  * [Backblaze Personal Backup]
+
+[S6-overlay]: https://github.com/just-containers/s6-overlay
+[x11vnc]: http://www.karlrunge.com/x11vnc/
+[xvfb]: http://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml
+[openbox]: http://openbox.org
+[noVNC]: https://github.com/novnc/noVNC
+[NGINX]: https://www.nginx.com
+[stunnel]: https://www.stunnel.org
+[WINE]: https://www.winehq.org/
+[Winetricks]: https://wiki.winehq.org/Winetricks
+[Backblaze Personal Backup]: https://www.backblaze.com/cloud-backup.html
+
+### Tags
+
+Currently no numbered releases exist, this may change in the future.
+
+| Tag | Description |
+|-----|-------------|
+| latest | latest version of the image. |
+
+## Environment Variables
+
+Environment variables can be set by adding one or more arguments `-e "<VAR>=<VALUE>"` to the `docker run` command.
+
+| Variable       | Description                                  | Default |
+|----------------|----------------------------------------------|---------|
+|`UMASK`| Mask that controls how file permissions are set for newly created files. The value of the mask is in octal notation.  By default, this variable is not set and the default umask of `022` is used, meaning that newly created files are readable by everyone, but only writable by the owner. See the following online umask calculator: http://wintelguy.com/umask-calc.pl | (unset) |
+|`TZ`| [TimeZone] of the container.  Timezone can also be set by mapping `/etc/localtime` between the host and the container. | `Etc/UTC` |
+|`APP_NICENESS`| Priority at which the application should run.  A niceness value of -20 is the highest priority and 19 is the lowest priority.  By default, niceness is not set, meaning that the default niceness of 0 is used.  **NOTE**: A negative niceness (priority increase) requires additional permissions.  In this case, the container should be run with the docker option `--cap-add=SYS_NICE`. | (unset) |
+|`CLEAN_TMP_DIR`| When set to `1`, all files in the `/tmp` directory are deleted during the container startup. | `1` |
+|`DISPLAY_WIDTH`| Width (in pixels) of the virtual screen's window. | `1280` |
+|`DISPLAY_HEIGHT`| Height (in pixels) of the virtual screen's window. | `768` |
+|`SECURE_CONNECTION`| When set to `1`, an encrypted connection is used to access the application's GUI (either via a web browser or VNC client).  See the [Security](#security) section for more details. | `0` |
+|`VNC_PASSWORD`| Password needed to connect to the application's GUI.  See the [VNC Password](#vnc-password) section for more details. | (unset) |
+|`X11VNC_EXTRA_OPTS`| Extra options to pass to the x11vnc server running in the Docker container.  **WARNING**: For advanced users. Do not use unless you know what you are doing. | (unset) |
+|`ENABLE_CJK_FONT`| When set to `1`, open-source computer font `WenQuanYi Zen Hei` is installed.  This font contains a large range of Chinese/Japanese/Korean characters. | `0` |
+
+## Config Directory
+Inside the container, wine's configuration and with it Backblaze's configuration is stored in the
+`/config/wine/` directory.
+
+This directory is also used to store the VNC password.  See the
+[VNC Pasword](#vnc-password) section for more details.
+
+## Ports
+
+Here is the list of ports used by container.  They can be mapped to the host
+via the `-p <HOST_PORT>:<CONTAINER_PORT>` parameter.  The port number inside the
+container cannot be changed, but you are free to use any port on the host side.
+
+| Port | Mapping to host | Description |
+|------|-----------------|-------------|
+| 5800 | Mandatory | Port used to access the application's GUI via the web interface. |
+| 5900 | Optional | Port used to access the application's GUI via the VNC protocol.  Optional if no VNC client is used. |
+
+## Accessing the GUI
+
+Assuming that container's ports are mapped to the same host's ports, the
+graphical interface of the application can be accessed via:
+
+  * A web browser:
+```
+http://<HOST IP ADDR>:5800
+```
+
+  * Any VNC client:
+```
+<HOST IP ADDR>:5900
+```
+
+## Security
+
+By default, access to the application's GUI is done over an unencrypted
+connection (HTTP or VNC).
+
+Secure connection can be enabled via the `SECURE_CONNECTION` environment
+variable.  See the [Environment Variables](#environment-variables) section for
+more details on how to set an environment variable.
+
+When enabled, application's GUI is performed over an HTTPs connection when
+accessed with a browser.  All HTTP accesses are automatically redirected to
+HTTPs.
+
+When using a VNC client, the VNC connection is performed over SSL.  Note that
+few VNC clients support this method.  [SSVNC] is one of them.
+
+### SSVNC
+
+[SSVNC] is a VNC viewer that adds encryption security to VNC connections.
+
+While the Linux version of [SSVNC] works well, the Windows version has some
+issues.  At the time of writing, the latest version `1.0.30` is not functional,
+as a connection fails with the following error:
+```
+ReadExact: Socket error while reading
+```
+However, for your convienence, an unoffical and working version is provided
+here:
+
+https://github.com/jlesage/docker-baseimage-gui/raw/master/tools/ssvnc_windows_only-1.0.30-r1.zip
+
+The only difference with the offical package is that the bundled version of
+`stunnel` has been upgraded to version `5.49`, which fixes the connection
+problems.
+
+### Certificates
+
+Here are the certificate files needed by the container.  By default, when they
+are missing, self-signed certificates are generated and used.  All files have
+PEM encoded, x509 certificates.
+
+| Container Path                  | Purpose                    | Content |
+|---------------------------------|----------------------------|---------|
+|`/config/certs/vnc-server.pem`   |VNC connection encryption.  |VNC server's private key and certificate, bundled with any root and intermediate certificates.|
+|`/config/certs/web-privkey.pem`  |HTTPs connection encryption.|Web server's private key.|
+|`/config/certs/web-fullchain.pem`|HTTPs connection encryption.|Web server's certificate, bundled with any root and intermediate certificates.|
+
+**NOTE**: To prevent any certificate validity warnings/errors from the browser
+or VNC client, make sure to supply your own valid certificates.
+
+**NOTE**: Certificate files are monitored and relevant daemons are automatically
+restarted when changes are detected.
+
+### VNC Password
+
+To restrict access to your application, a password can be specified.  This can
+be done via two methods:
+  * By using the `VNC_PASSWORD` environment variable.
+  * By creating a `.vncpass_clear` file at the root of the `/config` volume.
+    This file should contains the password in clear-text.  During the container
+    startup, content of the file is obfuscated and moved to `.vncpass`.
+
+The level of security provided by the VNC password depends on two things:
+  * The type of communication channel (encrypted/unencrypted).
+  * How secure access to the host is.
+
+When using a VNC password, it is highly desirable to enable the secure
+connection to prevent sending the password in clear over an unencrypted channel.
+
+Access to the host by unexpected users with sufficient privileges can be
+dangerous as they can retrieve the password with the following methods:
+  * By looking at the `VNC_PASSWORD` environment variable value via the
+    `docker inspect` command.  By defaut, the `docker` command can be run only
+    by the root user.  However, it is possible to configure the system to allow
+    the `docker` command to be run by any users part of a specific group.
+  * By decrypting the `/config/.vncpass` file.  This requires the user to have
+    the appropriate permission to read the file:  it has to be root or be the
+    user defined by the `USER_ID` environment variable.  Also, to be able to
+    retrieve the correct decryption key, one needs to know that the content of
+    the file was generated by `x11vnc`.
+
+### DH Parameters
+
+Diffie-Hellman (DH) parameters define how the [DH key-exchange] is performed.
+More details about this algorithm can be found on the [OpenSSL Wiki].
+
+DH Parameters are saved into the PEM encoded file located inside the container
+at `/config/certs/dhparam.pem`.  By default, when this file is missing, 2048
+bits DH parameters are automatically generated.  Note that this one-time
+operation takes some time to perform and increases the startup time of the
+container.
+
+[SSVNC]: http://www.karlrunge.com/x11vnc/ssvnc.html
+[DH key-exchange]: https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange
+[OpenSSL Wiki]: https://wiki.openssl.org/index.php/Diffie_Hellman
 
 ## Installation:
-````shell
-docker run \
-    -p 8080:5800 \
-    --init \
-    --name backblaze_personal_backup \
-    -v "[backup folder]/:/drive_d/" \
-    -v "[config folder]/:/config/" \
-    tessypowder/backblaze-personal-wine
-````
+1. Modify the following for your setup (in terms of [ports](ports) and [environment variables](environment-variables)) and run it
+
+    **NOTE**: root priviliges may be needed
+    ````shell
+    docker run \
+        -p 8080:5800 \
+        --init \
+        --name backblaze_personal_backup \
+        -v "[backup folder]/:/drive_d/" \
+        -v "[config folder]/:/config/" \
+        tessypowder/backblaze-personal-wine:latest
+    ````
 
 1. Open the Web Interface (on the port you specified in the docker run command, in this example 8080):
 
@@ -65,7 +269,7 @@ docker run \
 
 1. Insert your password (important: keyboard locale mismatches can mess up your inputs)
 
-    - Tip: You can use the clipboard function of the web interface, but some passwords will still not get transferred correctly, i would reccommend setting your backblaze password to a long string without special characters
+    - **TIP**: You can use the clipboard function of the web interface, but some passwords will still not get transferred correctly, i would reccommend setting your backblaze password to a long string without special characters
 
     ![Bildschirmfoto von 2022-01-16 14-57-31](https://user-images.githubusercontent.com/28999431/149663068-80b17726-860a-4614-abc3-e1dba7b1674e.png)
 
@@ -91,21 +295,21 @@ docker run \
 
   ![Bildschirmfoto von 2022-01-16 14-41-04](https://user-images.githubusercontent.com/28999431/149662713-b7b27862-59b6-432a-a3c3-327f939a7292.png)
 
-  - Explanation: I don't know what can cause this, it seems to randomly occur on some installations
+  - **Explanation**: I don't know what can cause this, it seems to randomly occur on some installations
 
-  - Solution: Stop the docker, delete the config directory, restart installation from beginning
+  - **Solution**: Stop the docker, delete the config directory, restart installation from beginning
 
-  - (Speculation: I think this only happens, when no volume is mounted at /config/ and docker manages the folder instead of the volume)
+  - (**Speculation**: I think this only happens, when no volume is mounted at /config/ and docker manages the folder instead of the volume)
 
 - The backup folder mounted as drive D is not being backed up
 
-  - Explanation: Depending on when you added drive D to your wine configuration, the Backblaze installer might not recognize it
+  - **Explanation**: Depending on when you added drive D to your wine configuration, the Backblaze installer might not recognize it
 
-  - Solution:
+  - **Solution**:
     - Open the Backblaze settings
     - In the section "Hard Drives" in the first tab "Settings" enable the checkbox for next to the drive D:\ 
 
-  - Still not working:
+  - **Still not working**:
     - Run
       ````shell
       docker exec --user app backblaze_personal_backup ls -la /config/wine/dosdevices/
@@ -120,7 +324,7 @@ docker run \
         lrwxrwxrwx 1 app app    1 Jan 16 13:43 z: -> /
       ````
 
-     - If it doesn't look like above try step 8 - 9 again
+     - If it doesn't look like above try step 9 - 10 again
 
 ## Additional Information
 
@@ -141,6 +345,8 @@ The `--init` flag installs a tiny process that can actually do a few init things
     ````
 
 # Credits
-This was originally developed by @Atemu (https://github.com/Atemu/backblaze-personal-wine-container)
+This was originally developed by @Atemu (https://github.com/Atemu/backblaze-personal-wine-container).
 
 The Backblaze logo and application is the property of Backblaze, Inc.
+
+This docker image is based on @jlesage 's excellent [base image](https://github.com/jlesage/docker-baseimage-gui).
