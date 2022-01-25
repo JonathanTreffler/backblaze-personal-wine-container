@@ -15,6 +15,7 @@ It runs the Backblaze client and starts a virtual X server and a VNC server with
 
    * **[Backblaze Personal Wine Container](#backblaze-personal-wine-container)**
       * [Table of Content](#table-of-content)
+      * [Project Status](#project-status)
       * [Docker Images](#docker-images)
          * [Content](#content)
          * [Tags](#tags)
@@ -30,6 +31,14 @@ It runs the Backblaze client and starts a virtual X server and a VNC server with
       * **[Installation](#installation)**
       * [Additional Information](#additional-information)
       * [Credits](#credits)
+
+## Project Status
+
+This project is pretty new, but i would consider it quite stable.
+
+Backing up is tested well, Restoring is not tested very well so far.
+
+Still please be attentive during the install process, because as the docker has read/write access to all the data you want to back up and if you make a grave mistake you could delete stuff.
 
 ## Docker Images
 ### Content
