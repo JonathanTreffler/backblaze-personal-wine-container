@@ -19,6 +19,7 @@ It runs the Backblaze client and starts a virtual X server and a VNC server with
       * [Docker Images](#docker-images)
          * [Content](#content)
          * [Tags](#tags)
+         * [Platforms](#platforms)
       * [Environment Variables](#environment-variables)
       * [Config Directory](#config-directory)
       * [Ports](#ports)
@@ -72,6 +73,22 @@ Here are the main components of this image:
 | latest | Latest stable version of the image |
 | v1.x | Versioned stable releases |
 | main | Automatic build of the main branch (may be unstable) |
+
+
+### Platforms
+
+| Platform | Support |
+|-----|-------------|
+| linux/amd64 | Fully supported |
+| linux/arm64 | Should work, but not tested |
+| linux/arm/v7 | Should work, but not tested |
+| linux/arm/v6 | Should work, but not tested |
+| linux/riscv64 | Currently no support |
+| linux/s390x | No support |
+| linux/ppc64le | No support |
+| linux/386 | No support |
+
+As Backblaze runs on Windows and MacOS, there is no point in supporting these platforms.
 
 ## Environment Variables
 
