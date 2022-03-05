@@ -1,5 +1,7 @@
 name: Docker Build and Push
 
+concurrency: docker-publish
+
 on:
   schedule:
     - cron: '23 4 */7 * *'
