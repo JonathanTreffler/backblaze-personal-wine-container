@@ -67,11 +67,11 @@ Here are the main components of this image:
 
 ### Tags
 
-Currently no numbered releases exist, this may change in the future.
-
 | Tag | Description |
 |-----|-------------|
-| latest | latest version of the image. |
+| latest | Latest stable version of the image |
+| v1.x | Versioned stable releases |
+| main | Automatic build of the main branch (may be unstable) |
 
 ## Environment Variables
 
