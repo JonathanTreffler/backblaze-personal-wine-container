@@ -1,0 +1,18 @@
+name: Dockerhub README Sync
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: meeDamian/sync-readme@v1.0.6
+        with:
+          user: tessypowder
+          pass: ${{ secrets.DOCKERHUB_TOKEN }}
+          slug: tessypowder/backblaze-personal-wine
