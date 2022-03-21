@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.1 - 2022-03-21
+### Added
+- Ubuntu 18 based version to broaden compatibility
+
 ## 1.0 - 2022-03-05
 ### Added
 - First versioned release
