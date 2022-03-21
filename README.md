@@ -72,9 +72,10 @@ Here are the main components of this image:
 |-----|-------------|
 | latest | Latest stable version of the image based on ubuntu 20 |
 | ubuntu18 | Latest stable version of the image based on ubuntu 18 |
-| v1.x | Versioned stable releases |
-| main | Automatic build of the main branch (may be unstable) |
+| v1.x | Versioned stable releases based on ubuntu 20 |
+| main | Automatic build of the main branch (may be unstable) based on ubuntu 20 |
 
+There are currently no versioned ubuntu18 builds.
 
 ### Platforms
 
