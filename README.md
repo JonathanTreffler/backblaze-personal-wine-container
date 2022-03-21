@@ -389,6 +389,7 @@ This docker image is based on @jlesage 's excellent [base image](https://github.
 
 ## Contributors:
 This project was made by:
+
 <a href="https://github.com/JonathanTreffler/backblaze-personal-wine-container/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=JonathanTreffler/backblaze-personal-wine-container" />
 </a>
