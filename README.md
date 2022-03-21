@@ -386,3 +386,9 @@ This was originally developed by @Atemu (https://github.com/Atemu/backblaze-pers
 The Backblaze logo and application is the property of Backblaze, Inc.
 
 This docker image is based on @jlesage 's excellent [base image](https://github.com/jlesage/docker-baseimage-gui).
+
+## Contributors:
+This project was made by:
+<a href="https://github.com/JonathanTreffler/backblaze-personal-wine-container/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=JonathanTreffler/backblaze-personal-wine-container" />
+</a>
