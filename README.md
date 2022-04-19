@@ -390,6 +390,11 @@ The `--init` flag installs a tiny process that can actually do a few init things
     ````shell
     docker run ... -e "DISPLAY_WIDTH=657" -e "DISPLAY_HEIGHT=473" ...
     ````
+6. Unraid users experiencing issues can reinitialize the docker setup by deleting the image and container and removing `appdata` by running:
+    ````shell
+    rm -rf /mnt/user/appdata/backblaze_personal_backup
+    ````
+   where `backblaze_personal_backup` is the name of the docker container you assigned during installation.
 
 # Credits
 This was originally developed by @Atemu (https://github.com/Atemu/backblaze-personal-wine-container).
