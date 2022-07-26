@@ -4,6 +4,7 @@
 ![Maintenance](https://img.shields.io/maintenance/yes/2022?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
 ![GitHub contributors](https://img.shields.io/github/contributors/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
 
 # Backblaze Personal Wine Container
 
