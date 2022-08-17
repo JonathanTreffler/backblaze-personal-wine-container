@@ -395,7 +395,9 @@ The `--init` flag installs a tiny process that can actually do a few init things
 # Credits
 This was originally developed by @Atemu (https://github.com/Atemu/backblaze-personal-wine-container).
 
-The Backblaze logo and application is the property of Backblaze, Inc.
+The Backblaze name, logo and application is the property of Backblaze, Inc.
+
+This docker does not redistribute the Backblaze application. It gets downloaded from the official Backblaze Servers during the install process.
 
 This docker image is based on @jlesage 's excellent [base image](https://github.com/jlesage/docker-baseimage-gui).
 
