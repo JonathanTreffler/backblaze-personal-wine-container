@@ -83,10 +83,10 @@ There are currently no versioned ubuntu18 builds.
 | Platform | Support |
 |-----|-------------|
 | linux/amd64 | Fully supported |
-| linux/arm64 | Should work, but not tested |
-| linux/arm/v7 | Should work, but not tested |
-| linux/arm/v6 | Should work, but not tested |
-| linux/riscv64 | Currently no support |
+| linux/arm64 | Currently no support (maybe in the future) |
+| linux/arm/v7 | No support |
+| linux/arm/v6 | No support |
+| linux/riscv64 | Currently no support (maybe in the future) |
 | linux/s390x | No support |
 | linux/ppc64le | No support |
 | linux/386 | No support |
