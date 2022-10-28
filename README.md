@@ -305,9 +305,10 @@ container.
 
     ![Bildschirmfoto von 2022-01-16 14-52-27](https://user-images.githubusercontent.com/28999431/149662922-b637e0e5-7932-4e5e-bf14-1e7a6678311c.png)
 
-1. Insert your password (important: keyboard locale mismatches can mess up your inputs)
+1. Insert your password (important: keyboard locale mismatches can mess up your inputs; disable Google sign-in in your Backblaze account settings)
 
     - **TIP**: You can use the clipboard function of the web interface, but some passwords will still not get transferred correctly, i would reccommend setting your backblaze password to a long string without special characters
+    - **Password field did not appear after hitting enter**: Most likely you used Google as your sign-in option. The container does not have a browser built-in so Google's sign-in page will not pop-up and the installation is stuck. You should temporally change your sign-in option to email and the password field should appear again. Go to [this link](https://secure.backblaze.com/user_overview.htm) -> `My Settings` (Left side menu bottom) -> `Sign Into Backblaze Using`, change it to `My Email`.
 
     ![Bildschirmfoto von 2022-01-16 14-57-31](https://user-images.githubusercontent.com/28999431/149663068-80b17726-860a-4614-abc3-e1dba7b1674e.png)
 
