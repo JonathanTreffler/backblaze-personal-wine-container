@@ -20,9 +20,9 @@ RUN apt-get autoremove -y
 
 ENV WINEPREFIX /config/wine/
 
-RUN \
-    APP_ICON_URL=https://www.backblaze.com/pics/cloud-blaze.png && \
-    install_app_icon.sh "$APP_ICON_URL"
+#RUN \
+#    APP_ICON_URL=https://www.backblaze.com/pics/cloud-blaze.png && \
+#    install_app_icon.sh "$APP_ICON_URL"
     
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
 
