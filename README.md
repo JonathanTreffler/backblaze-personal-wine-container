@@ -367,7 +367,7 @@ container.
         lrwxrwxrwx 1 app app    1 Jan 16 13:43 z: -> /
       ````
 
-     - If it doesn't look like above try step 9 - 10 again
+     - If it doesn't look like above try step 10 - 11 again
 	 
 - The Backblaze installer `could not communicate with {URL} so installation failed. Fix your internet connection.`  
   
