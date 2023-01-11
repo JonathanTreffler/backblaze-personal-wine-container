@@ -330,7 +330,7 @@ container.
 
 1. The Installation is done 🎉
 
-1. Buy a license for your Computer/Server in the Backblaze Dashboard, just like for a normal Windows/Mac installation
+1. Buy a license for your Computer in the Backblaze Dashboard, just like for a normal Windows/Mac installation
 
 ## Troubleshooting
 
