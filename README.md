@@ -1,7 +1,7 @@
 ![Github License](https://img.shields.io/github/license/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
 ![Docker Pulls](https://img.shields.io/docker/pulls/tessypowder/backblaze-personal-wine?style=flat-square)
 ![Docker Image Size](https://img.shields.io/docker/image-size/tessypowder/backblaze-personal-wine/latest?style=flat-square)
-![Maintenance](https://img.shields.io/maintenance/yes/2022?style=flat-square)
+![Maintenance](https://img.shields.io/maintenance/yes/2023?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
 ![GitHub contributors](https://img.shields.io/github/contributors/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
