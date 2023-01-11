@@ -6,7 +6,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
 
-# Backblaze Personal Wine Container
+# Backblaze Personal Wine Community Container
 
 This Docker container runs the Backblaze personal backup client via WINE, so that you can back up your files with the separation and portability capabilities of Docker on Linux.
 
@@ -244,6 +244,7 @@ container.
 [OpenSSL Wiki]: https://wiki.openssl.org/index.php/Diffie_Hellman
 
 ## Installation:
+1. Check for yourself if using this docker complies with the Backblaze [terms of service](https://www.backblaze.com/company/terms.html)
 1. Modify the following for your setup (in terms of [ports](ports) and [environment variables](environment-variables)) and run it
 
     **NOTE**: root priviliges may be needed
