@@ -12,6 +12,8 @@ This Docker container runs the Backblaze personal backup client via WINE, so tha
 
 It runs the Backblaze client and starts a virtual X server and a VNC server with Web GUI, so that you can interact with it.
 
+⚠️ This project is not affiliated with Backblaze Inc. ⚠️
+
 ## Table of Content
 
    * **[Backblaze Personal Wine Container](#backblaze-personal-wine-container)**
