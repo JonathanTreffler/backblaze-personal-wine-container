@@ -8,7 +8,7 @@
 
 # Backblaze Personal Wine Community Container
 
-This Docker container runs the Backblaze personal backup client via WINE, so that you can back up your files with the separation and portability capabilities of Docker on Linux.
+This Docker container runs the Backblaze personal backup client via [WINE](https://www.winehq.org), so that you can back up your files with the separation and portability capabilities of Docker on Linux.
 
 It runs the Backblaze client and starts a virtual X server and a VNC server with Web GUI, so that you can interact with it.
 
