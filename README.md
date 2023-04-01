@@ -107,8 +107,8 @@ Environment variables can be set by adding one or more arguments `-e "<VAR>=<VAL
 |`USER_ID`| When mounting docker-volumes, permission issues can arise between the docker host and the container. You can pass the User_ID permissions to the container with this variable. | `1000` |
 |`GROUP_ID`| When mounting docker-volumes, permission issues can arise between the docker host and the container. You can pass the Group_ID permissions to the container with this variable. | `1000` |
 |`CLEAN_TMP_DIR`| When set to `1`, all files in the `/tmp` directory are deleted during the container startup. | `1` |
-|`DISPLAY_WIDTH`| Width (in pixels) of the virtual screen's window. | `1280` |
-|`DISPLAY_HEIGHT`| Height (in pixels) of the virtual screen's window. | `768` |
+|`DISPLAY_WIDTH`| Width (in pixels) of the virtual screen's window. (Has to be divisible by 4) | `1280` |
+|`DISPLAY_HEIGHT`| Height (in pixels) of the virtual screen's window. (Has to be divisible by 4) | `768` |
 |`SECURE_CONNECTION`| When set to `1`, an encrypted connection is used to access the application's GUI (either via a web browser or VNC client).  See the [Security](#security) section for more details. | `0` |
 |`VNC_PASSWORD`| Password needed to connect to the application's GUI.  See the [VNC Password](#vnc-password) section for more details. | (unset) |
 |`X11VNC_EXTRA_OPTS`| Extra options to pass to the x11vnc server running in the Docker container.  **WARNING**: For advanced users. Do not use unless you know what you are doing. | (unset) |
@@ -378,7 +378,7 @@ container.
   - **Solution**: Use the `ubuntu18` tag instead
   
   - **For More Information**: See [#4](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/4)
-
+  
 ## Additional Information
 
 1. Warning: The Backblaze client is not an init system (who knew) and doesn't clean up its zombie children. This will cause it to fill up your system's PID limit within a few hours which prevents new processes from being created system-wide, would not recommend.  
@@ -392,7 +392,7 @@ The `--init` flag installs a tiny process that can actually do a few init things
     ````shell
     docker exec --user app backblaze_personal_backup winecfg
     ````
-5. The window size of Backblaze Personal Backup seems to be hardcoded, so it looks nicer (less black bars on the sides) when you set the size of the virtual VNC screen to the same size. The widest dialog the client opens is the recovery dialog with 657px and the tallest dialog are the settings with 453px. In order to fit the windows decorations i would suggest a screen size of 657x473. This can be set using environment variables when creating the docker:
+5. The window size of Backblaze Personal Backup seems to be hardcoded, so it looks nicer (less black bars on the sides) when you set the size of the virtual VNC screen to the same size. The widest dialog the client opens is the recovery dialog with 657px and the tallest dialog are the settings with 453px. In order to fit the windows decorations i would suggest a screen size of 660x476. This can be set using environment variables when creating the docker:
     ````shell
     docker run ... -e "DISPLAY_WIDTH=660" -e "DISPLAY_HEIGHT=476" ...
     ````
