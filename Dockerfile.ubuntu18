@@ -37,3 +37,4 @@ ENV WINEDEBUG -all
 EXPOSE 5900
 
 COPY startapp.sh /startapp.sh
+RUN chmod +x /startapp.sh
