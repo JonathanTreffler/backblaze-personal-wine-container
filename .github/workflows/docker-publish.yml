@@ -69,7 +69,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-   build_ubuntu18:
+  build_ubuntu18:
     runs-on: ubuntu-latest
     permissions:
       contents: read
