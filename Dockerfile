@@ -13,16 +13,13 @@ RUN apt-get install -y winehq-stable
 
 RUN apt-get install -y winetricks
 
-RUN apt-get clean -y
-RUN apt-get autoremove -y
-
-#ENV DISPLAY :0
+RUN apt-get clean -y && apt-get autoremove -y
 
 ENV WINEPREFIX /config/wine/
 
-#RUN \
-#    APP_ICON_URL=https://www.backblaze.com/pics/cloud-blaze.png && \
-#    install_app_icon.sh "$APP_ICON_URL"
+RUN \
+    APP_ICON_URL=https://www.backblaze.com/blog/wp-content/uploads/2021/06/image6-1024x366.png && \
+    install_app_icon.sh "$APP_ICON_URL"
     
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
 

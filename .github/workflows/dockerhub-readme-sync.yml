@@ -13,6 +13,6 @@ jobs:
 
       - uses: meeDamian/sync-readme@v1.0.6
         with:
-          user: tessypowder
-          pass: ${{ secrets.DOCKERHUB_PW }}
-          slug: tessypowder/backblaze-personal-wine
+          user: ${{ secrets.DOCKERHUB_USER }}
+          pass: ${{ secrets.DOCKERHUB_TOKEN }}
+          slug: ${{ secrets.DOCKERHUB_USER }}/backblaze-personal-wine
