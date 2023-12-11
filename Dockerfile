@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-20.04
+FROM jlesage/baseimage-gui:ubuntu-20.04-v4@sha256:8043c563ef2d47944faa62fb5ab26a8dd8d26da14a3ae970fff1c5747b542ce1
 
 RUN apt-get update
 
@@ -13,16 +13,9 @@ RUN apt-get install -y winehq-stable
 
 RUN apt-get install -y winetricks
 
-RUN apt-get clean -y
-RUN apt-get autoremove -y
-
-#ENV DISPLAY :0
+RUN apt-get clean -y && apt-get autoremove -y
 
 ENV WINEPREFIX /config/wine/
-
-#RUN \
-#    APP_ICON_URL=https://www.backblaze.com/pics/cloud-blaze.png && \
-#    install_app_icon.sh "$APP_ICON_URL"
     
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
 
@@ -40,3 +33,4 @@ ENV WINEDEBUG -all
 EXPOSE 5900
 
 COPY startapp.sh /startapp.sh
+RUN chmod +x /startapp.sh
