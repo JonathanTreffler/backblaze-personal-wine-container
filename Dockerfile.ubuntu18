@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-18.04
+FROM jlesage/baseimage-gui:ubuntu-18.04-v4@sha256:3cab71f85ed652a87ebf1e02e6771fca9223c889a9c15c99172320718a50abca
 
 RUN apt-get update
 

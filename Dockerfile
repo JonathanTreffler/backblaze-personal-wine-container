@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-20.04
+FROM jlesage/baseimage-gui:ubuntu-20.04-v4@sha256:8043c563ef2d47944faa62fb5ab26a8dd8d26da14a3ae970fff1c5747b542ce1
 
 RUN apt-get update
 
