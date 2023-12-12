@@ -79,7 +79,7 @@ Here are the main components of this image:
 | v1.x | Versioned stable releases based on ubuntu 20 |
 | main | Automatic build of the main branch (may be unstable) based on ubuntu 20 |
 
-There are currently no versioned ubuntu18 builds.
+There are currently no versioned ubuntu22 or ubuntu18 builds.
 
 ### Platforms
 
