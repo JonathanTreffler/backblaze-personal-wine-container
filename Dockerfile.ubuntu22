@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-22.04-v4@sha256:bb71746f83b7f048b1bf24e06413510b59558eb26c9673abdea688024b895ba2
+FROM jlesage/baseimage-gui:ubuntu-22.04-v4@sha256:996a6e6c024c52cce5d0447ccb26fd0d6bdeeff9fdd58c303438c4e29081c654
 
 RUN apt-get update
 
