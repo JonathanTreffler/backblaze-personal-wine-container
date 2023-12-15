@@ -27,6 +27,7 @@ ENV LANG en_US.UTF-8
 
 ENV APP_NAME="Backblaze Personal Backup"
 ENV FORCE_LATEST_UPDATE="false"
+ENV DISABLE_AUTOUPDATE="false"
 
 # Disable WINE Debug messages
 ENV WINEDEBUG -all

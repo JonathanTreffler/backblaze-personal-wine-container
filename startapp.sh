@@ -5,7 +5,7 @@ set -x
 release_version=$(cat "/RELEASE_VERSION") #backblaze-personal-wine version tag
 local_version_file="$WINEPREFIX/dosdevices/c:/ProgramData/Backblaze/bzdata/bzreports/bzserv_version.txt"
 install_exe_path="$WINEPREFIX/dosdevices/c:/"
-log_file="WINEPREFIX/dosdevices/c:/backblaze-autoupdate.log"
+log_file="$WINEPREFIX/dosdevices/c:/backblaze-wine-startapp.log"
 custom_user_agent="backblaze-personal-wine/$release_version (JonathanTreffler, +https://github.com/JonathanTreffler/backblaze-personal-wine-container), CFNetwork"
 
 # Extracting variables from the PINNED_VERSION file
@@ -16,15 +16,21 @@ pinned_bz_version_url=$(sed -n '2p' "$pinned_bz_version_file")
 export WINEARCH="win64"
 
 # Disclaimer
-log_force_latest_update() {
-    if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
-        echo "FORCE_LATEST_UPDATE is enabled which may brick your installation."
+disclaimer_updatemode() {
+    # Check if auto-updates are disabled
+    if [ "$DISABLE_AUTOUPDATE" = "true" ]; then
+        echo "Auto-updates are disabled. Backblaze won't bue updated."
     else
-        echo "FORCE_LATEST_UPDATE is disabled. Using known-good version of Backblaze."
+        # Check the status of FORCE_LATEST_UPDATE
+        if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
+            echo "FORCE_LATEST_UPDATE is enabled which may brick your installation."
+        else
+            echo "FORCE_LATEST_UPDATE is disabled. Using known-good version of Backblaze."
+        fi
     fi
 }
 
-log_force_latest_update
+disclaimer_updatemode
 
 
 if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
@@ -76,6 +82,12 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
         fi
         WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "./install_backblaze.exe" || handle_error "Failed to install Backblaze"
     }
+
+    # Check if auto-updates are disabled
+    if [ "$DISABLE_AUTOUPDATE" = "true" ]; then
+        log_message "Auto-updates are disabled. Starting Backblaze without updating."
+        start_app
+    fi
 
     # Update process for force_latest_update set to true or not set
     if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
