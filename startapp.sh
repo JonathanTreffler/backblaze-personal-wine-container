@@ -45,6 +45,7 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     }
 
     start_app() {
+    log_message "STARTAPP: Starting Backblaze version $local_version_file"
     wine64 "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" -noqiet &
     sleep infinity
     }
@@ -67,25 +68,30 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
         compare_version="$2"
 
         if dpkg --compare-versions "$local_version" lt "$compare_version"; then
+            log_message "UPDATER: COMPARE: newer version found - local $local_version - remote $compare_version"
             return 0 # The compare_version is higher
         else
+            log_message "UPDATER: COMPARE: no new version found - local $local_version - remote $compare_version"
             return 1 # The local version is higher or equal
         fi
     }
 
     fetch_and_install() {
-        cd "$install_exe_path" || handle_error "Failed to change directory"
+        cd "$install_exe_path" || handle_error "UPDATER: can't navigate to $install_exe_path"
         if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
+            log_message "UPDATER: FORCE_LATEST_UPDATE=true - downloading latest version"
             curl -L "https://www.backblaze.com/win32/install_backblaze.exe" --output "install_backblaze.exe"
         else
+            log_message "UPDATER: FORCE_LATEST_UPDATE=false - downloading known-good version from archive.org"
             curl -A "$custom_user_agent" -L "$pinned_bz_version_url" --output "install_backblaze.exe"
         fi
-        WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "./install_backblaze.exe" || handle_error "Failed to install Backblaze"
+        log_message "UPDATER: Starting install_backblaze.exe"
+        WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "./install_backblaze.exe" || handle_error "UPDATER: Failed to install Backblaze"
     }
 
     # Check if auto-updates are disabled
     if [ "$DISABLE_AUTOUPDATE" = "true" ]; then
-        log_message "Auto-updates are disabled. Starting Backblaze without updating."
+        log_message "UPDATER: DISABLE_AUTOUPDATE=true, Auto-updates are disabled. Starting Backblaze without updating."
         start_app
     fi
 
@@ -93,7 +99,7 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
         # Main auto update logic
         if [ -f "$local_version_file" ]; then
-            log_message "Auto update logic for force_latest_update=true."
+            log_message "UPDATER: FORCE_LATEST_UPDATE=true, updating to the latest version"
             urls="
                 https://ca000.backblaze.com/api/clientversion.xml
                 https://ca001.backblaze.com/api/clientversion.xml
@@ -105,16 +111,16 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
 
             for url in $urls; do
                 if check_url_validity "$url"; then
-                    xml_content=$(curl -s "$url") || handle_error "Failed to fetch XML content"
+                    xml_content=$(curl -s "$url") || handle_error "UPDATER: Failed to fetch XML content"
                     xml_version=$(echo "$xml_content" | grep -o '<update win32_version="[0-9.]*"' | cut -d'"' -f2)
-                    local_version=$(cat "$local_version_file") || handle_error "Failed to read local version"
+                    local_version=$(cat "$local_version_file") || handle_error "UPDATER: Failed to read local version from $local_version_file"
 
                     if compare_versions "$local_version" "$xml_version"; then
-                        log_message "Downloading and installing the newer version..."
+                        log_message "UPDATER: Newer version found - downloading and installing the newer version..."
                         fetch_and_install
                         start_app # Exit after successful download+installation and start app
                     else
-                        log_message "The local version is up to date."
+                        log_message "UPDATER: The installed version is up to date."
                         start_app # Exit autoupdate and start app
                     fi
                 fi
@@ -127,30 +133,30 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     else
         # Update process for force_latest_update set to false or anything else
         if [ -f "$local_version_file" ]; then
-            log_message "Checking for updates based on bzserv_version file."
-            local_version=$(cat "$local_version_file") || handle_error "Failed to read local version"
+            log_message "UPDATER: FORCE_LATEST_UPDATE=false, Checking if newer version than $local_version_file is available."
+            local_version=$(cat "$local_version_file") || handle_error "UPDATER: Failed to read local version file"
 
             if compare_versions "$local_version" "$pinned_bz_version"; then
-                log_message "Downloading and installing the newer version..."
+                log_message "UPDATER: FORCE_LATEST_UPDATE=false, Newer version found - downloading and installing the newer version..."
                 fetch_and_install
                 start_app # Exit after successful download+installation and start app
             else
-                log_message "The local version is up to date. There may be a newer version available when using force_latest_update=true"
+                log_message "UPDATER: FORCE_LATEST_UPDATE=false, The local version is up to date. There may be a newer version available when using FORCE_LATEST_UPDATE=true"
                 start_app # Exit autoupdate and start app
             fi
         else
-            handle_error "Local version file not found. Exiting."
+            handle_error "UPDATER: Local version file does not exist. Exiting updater."
         fi
     fi
 else
     mkdir -p /config/wine/ &&
     if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
-        log_message "Installing latest Backblaze version"
+        log_message "INSTALLER: FORCE_LATEST_UPDATE=true, Installing latest Backblaze version"
         curl -L "https://www.backblaze.com/win32/install_backblaze.exe" --output "install_backblaze.exe" &&
         ls -la &&
         wine64 "install_backblaze.exe" &
     else
-        log_message "Installing pinned Backblaze"
+        log_message "INSTALLER: FORCE_LATEST_UPDATE=false, Installing pinned Backblaze version"
         curl -A "$custom_user_agent" -L "$pinned_bz_version_url" --output "install_backblaze.exe"&&
         ls -la &&
         wine64 "install_backblaze.exe" &
