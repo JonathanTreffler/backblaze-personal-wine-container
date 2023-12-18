@@ -19,7 +19,7 @@ export WINEARCH="win64"
 disclaimer_updatemode() {
     # Check if auto-updates are disabled
     if [ "$DISABLE_AUTOUPDATE" = "true" ]; then
-        echo "Auto-updates are disabled. Backblaze won't bue updated."
+        echo "Auto-updates are disabled. Backblaze won't be updated."
     else
         # Check the status of FORCE_LATEST_UPDATE
         if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
