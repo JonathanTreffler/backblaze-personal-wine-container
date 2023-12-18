@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added backblaze client auto-update functionality to the docker (#88, thanks @traktuner)
+
+### Changed
+- By default, a known-good version of the backblaze client will now be used
+  - can be overridden by adding the environment variable "FORCE_LATEST_UPDATE=true"
+- The wine version in the Dockerfiles is now pinned to get more control over stability
+
 ## 1.5 - 2023-10-13
 ### Changed
 - Dependency updates (see #18 (comment))
