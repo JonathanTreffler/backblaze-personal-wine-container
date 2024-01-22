@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-22.04-v4@sha256:bb71746f83b7f048b1bf24e06413510b59558eb26c9673abdea688024b895ba2
+FROM jlesage/baseimage-gui:ubuntu-22.04-v4@sha256:51c11dd8405ec18c65b85808ede782e548d8233705c7fb3a62d0dcf0abca55c3
 
 RUN apt-get update
 
@@ -9,7 +9,7 @@ RUN curl -O https://dl.winehq.org/wine-builds/winehq.key
 RUN apt-key add winehq.key
 RUN add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ jammy main'
 RUN apt-get update
-RUN apt-get install -y winehq-stable=8.0.2*
+RUN apt-get install -y winehq-stable=9.0*
 
 RUN apt-get install -y winetricks
 

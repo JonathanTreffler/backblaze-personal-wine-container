@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-20.04-v4@sha256:8043c563ef2d47944faa62fb5ab26a8dd8d26da14a3ae970fff1c5747b542ce1
+FROM jlesage/baseimage-gui:ubuntu-20.04-v4@sha256:7727052607e9b69eeb1bfce717effa1e3abf725b431118ff35226bc63a1c72e8
 
 RUN apt-get update
 
@@ -9,7 +9,7 @@ RUN curl -O https://dl.winehq.org/wine-builds/winehq.key
 RUN apt-key add winehq.key
 RUN add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main'
 RUN apt-get update
-RUN apt-get install -y winehq-stable=8.0.2*
+RUN apt-get install -y winehq-stable=9.0*
 
 RUN apt-get install -y winetricks
 
