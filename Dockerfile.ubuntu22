@@ -9,7 +9,7 @@ RUN curl -O https://dl.winehq.org/wine-builds/winehq.key
 RUN apt-key add winehq.key
 RUN add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ jammy main'
 RUN apt-get update
-RUN apt-get install -y winehq-stable=8.0.2*
+RUN apt-get install -y winehq-stable=9.0*
 
 RUN apt-get install -y winetricks
 
