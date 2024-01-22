@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.6 - 2024-01-22
+
 ### Added
 - Added backblaze client auto-update functionality to the docker (#88, thanks @traktuner)
 
