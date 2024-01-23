@@ -6,7 +6,7 @@ release_version=$(cat "/RELEASE_VERSION") #backblaze-personal-wine version tag
 local_version_file="$WINEPREFIX/dosdevices/c:/ProgramData/Backblaze/bzdata/bzreports/bzserv_version.txt"
 install_exe_path="$WINEPREFIX/dosdevices/c:/"
 log_file="$WINEPREFIX/dosdevices/c:/backblaze-wine-startapp.log"
-custom_user_agent="backblaze-personal-wine/$release_version (JonathanTreffler, +https://github.com/JonathanTreffler/backblaze-personal-wine-container), CFNetwork"
+custom_user_agent='backblaze-personal-wine/$release_version (JonathanTreffler, +https://github.com/JonathanTreffler/backblaze-personal-wine-container), CFNetwork'
 
 # Extracting variables from the PINNED_VERSION file
 pinned_bz_version_file="/PINNED_BZ_VERSION"
@@ -83,7 +83,7 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
             curl -L "https://www.backblaze.com/win32/install_backblaze.exe" --output "install_backblaze.exe"
         else
             log_message "UPDATER: FORCE_LATEST_UPDATE=false - downloading known-good version from archive.org"
-            curl -A "$custom_user_agent" -L "$pinned_bz_version_url" --output "install_backblaze.exe"
+            curl -L "$pinned_bz_version_url" --output "install_backblaze.exe"
         fi
         log_message "UPDATER: Starting install_backblaze.exe"
         WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "./install_backblaze.exe" || handle_error "UPDATER: Failed to install Backblaze"
@@ -157,7 +157,7 @@ else
         wine64 "install_backblaze.exe" &
     else
         log_message "INSTALLER: FORCE_LATEST_UPDATE=false, Installing pinned Backblaze version"
-        curl -A "$custom_user_agent" -L "$pinned_bz_version_url" --output "install_backblaze.exe"&&
+        curl -L "$pinned_bz_version_url" --output "install_backblaze.exe"&&
         ls -la &&
         wine64 "install_backblaze.exe" &
     fi
