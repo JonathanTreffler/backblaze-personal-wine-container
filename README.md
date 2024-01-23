@@ -381,6 +381,15 @@ container.
   - **Solution**: Use the `ubuntu18` tag instead
   
   - **For More Information**: See [#4](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/4)
+
+- Upon starting the container for the first time, it shows a black screen
+
+  - **Explanation**: If the host device is a Synology Network Attached Storage, it seems (see [#98](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/98)) that the Synology requires a certain combination of settings.
+  - **Solution**: Ensure you do the following:
+     - Set the environment variable `USER_ID=0`
+     - Set the environment variable `GROUP_ID=0`
+     - In `Container Manager`, ensure this container is set to `Execute container with high privilege`
+  - **For More Information**: See [#98](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/98).
   
 ## Additional Information
 
