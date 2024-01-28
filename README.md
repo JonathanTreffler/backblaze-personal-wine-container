@@ -393,7 +393,6 @@ container.
     docker run \
         -p 8080:5800 \
         --init \
-        --privileged \
         --USER_ID=0 \
         --GROUP_ID=0 \
         --name backblaze_personal_backup \
