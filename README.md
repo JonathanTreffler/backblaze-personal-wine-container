@@ -400,6 +400,25 @@ container.
         -v "[config folder]/:/config/" \
         tessypowder/backblaze-personal-wine:latest
     ````
+
+  - **Additional 'black screen' troubleshooting for Synology devices**:
+    - It may be necessary to run the container with even higher permissions (--privileged)
+
+    ````shell
+    docker run \
+        -p 8080:5800 \
+        --init \
+        --privileged \
+        --USER_ID=0 \
+        --GROUP_ID=0 \
+        --name backblaze_personal_backup \
+        -v "[backup folder]/:/drive_d/" \
+        -v "[config folder]/:/config/" \
+        tessypowder/backblaze-personal-wine:latest
+    ````
+
+  - **For More Information**: See [#98](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/98), 
+  [#99](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/99)
   
 ## Additional Information
 
