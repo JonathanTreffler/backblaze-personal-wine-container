@@ -417,8 +417,7 @@ container.
         tessypowder/backblaze-personal-wine:latest
     ````
 
-  - **For More Information**: See [#98](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/98), 
-  [#99](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/99)
+  - **For More Information**: See [#98](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/98), [#99](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/99)
   
 ## Additional Information
 
