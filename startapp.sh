@@ -45,7 +45,7 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     }
 
     start_app() {
-    log_message "STARTAPP: Starting Backblaze version $local_version_file"
+    log_message "STARTAPP: Starting Backblaze version $(cat "$local_version_file")"
     wine64 "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" -noqiet &
     sleep infinity
     }
