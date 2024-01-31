@@ -381,6 +381,43 @@ container.
   - **Solution**: Use the `ubuntu18` tag instead
   
   - **For More Information**: See [#4](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/4)
+
+- I can only see a black screen when I start the container
+
+  - **Explanation**: The Docker container may have insufficient permissions to download and install Backblaze.
+
+  - **Solution**:
+    - Try a different run command where you explicitly pass the root ID 0 to the container:
+
+    ````shell
+    docker run \
+        -p 8080:5800 \
+        --init \
+        --USER_ID=0 \
+        --GROUP_ID=0 \
+        --name backblaze_personal_backup \
+        -v "[backup folder]/:/drive_d/" \
+        -v "[config folder]/:/config/" \
+        tessypowder/backblaze-personal-wine:latest
+    ````
+
+  - **Additional 'black screen' troubleshooting for Synology devices**:
+    - It may be necessary to run the container with even higher permissions (--privileged)
+
+    ````shell
+    docker run \
+        -p 8080:5800 \
+        --init \
+        --privileged \
+        --USER_ID=0 \
+        --GROUP_ID=0 \
+        --name backblaze_personal_backup \
+        -v "[backup folder]/:/drive_d/" \
+        -v "[config folder]/:/config/" \
+        tessypowder/backblaze-personal-wine:latest
+    ````
+
+  - **For More Information**: See [#98](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/98), [#99](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/99)
   
 ## Additional Information
 

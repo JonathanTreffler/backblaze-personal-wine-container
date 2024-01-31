@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.6.1 - 2024-01-26
+
+### Changed
+- Updated known-good Backblaze version to 9.0.1.763
+> [!NOTE]  
+> Backblaze will automatically be updated to a known-good version mentioned above, if your installed version is older.
+> This download of the new version may take some time, so you will only see a black screen until the download is finished. After that, the installer appears and you can update Backblaze by clicking on "install".
+
 ## 1.6 - 2024-01-22
 
 ### Added
