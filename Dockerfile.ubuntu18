@@ -31,6 +31,8 @@ ENV DISABLE_AUTOUPDATE="false"
 
 # Disable WINE Debug messages
 ENV WINEDEBUG -all
+# Set DISPLAY to allow GUI programs to be run
+ENV DISPLAY=:0
 
 EXPOSE 5900
 
