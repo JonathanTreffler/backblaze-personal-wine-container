@@ -32,6 +32,9 @@ disclaimer_updatemode() {
 
 disclaimer_updatemode
 
+log_message() {
+    echo "$(date): $1" >> "$log_file"
+}
 
 if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     # Function to handle errors
@@ -40,9 +43,7 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
         start_app # Start app even if there is a problem with the updater
     }
 
-    log_message() {
-        echo "$(date): $1" >> "$log_file"
-    }
+
 
     start_app() {
     log_message "STARTAPP: Starting Backblaze version $(cat "$local_version_file")"
