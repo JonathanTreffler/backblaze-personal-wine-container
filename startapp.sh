@@ -154,6 +154,7 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
         fi
     fi
 else
+    cd "$install_exe_path" || handle_error "UPDATER: can't navigate to $install_exe_path"
     mkdir -p /config/wine/ &&
     if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
         log_message "INSTALLER: FORCE_LATEST_UPDATE=true, Installing latest Backblaze version"
