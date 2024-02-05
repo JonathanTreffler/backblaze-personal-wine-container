@@ -33,7 +33,11 @@ disclaimer_updatemode() {
 disclaimer_updatemode
 
 log_message() {
-    echo "$(date): $1" >> "$log_file"
+    if [ ! -d $(dirname $log_file) ]; then
+        echo "$(date): $1" >> /tmp/backblaze-wine-startapp.log
+    else
+        echo "$(date): $1" >> "$log_file"
+    fi
 }
 
 if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
