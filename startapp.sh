@@ -61,6 +61,24 @@ start_app() {
     sleep infinity
 }
 
+# Pre-install Wine
+if [ ! -d "$WINEPREFIX" ]; then
+    echo "WINE: Wine not installed, initializing"
+    wineboot -i
+    log_message "WINE: Installed"
+fi
+
+#Configure Extra Mounts
+
+for x in {d..h}
+do
+    if test -d "/drive_${x}" && ! test -d "${WINEPREFIX}dosdevices/${x}:"; then
+        log_message "DRIVE: drive_${x} found but not mounted, mounting..."
+        ln -s "/drive_${x}/" "${WINEPREFIX}dosdevices/${x}:"
+    fi
+done
+
+
 if [ -f "${WINEPREFIX}drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     check_url_validity() {
         url="$1"
