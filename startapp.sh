@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 set -x
 
 # Define globals
 release_version=$(cat "/RELEASE_VERSION") #backblaze-personal-wine version tag
-local_version_file="$WINEPREFIX/dosdevices/c:/ProgramData/Backblaze/bzdata/bzreports/bzserv_version.txt"
-install_exe_path="$WINEPREFIX/dosdevices/c:/"
-log_file="$WINEPREFIX/dosdevices/c:/backblaze-wine-startapp.log"
+local_version_file="${WINEPREFIX}dosdevices/c:/ProgramData/Backblaze/bzdata/bzreports/bzserv_version.txt"
+install_exe_path="${WINEPREFIX}dosdevices/c:/"
+log_file="${WINEPREFIX}dosdevices/c:/backblaze-wine-startapp.log"
 custom_user_agent="backblaze-personal-wine/$release_version (JonathanTreffler, +https://github.com/JonathanTreffler/backblaze-personal-wine-container), CFNetwork"
 
 # Extracting variables from the PINNED_VERSION file
@@ -33,28 +33,35 @@ disclaimer_updatemode() {
 disclaimer_updatemode
 
 log_message() {
-    if [ ! -d $(dirname $log_file) ]; then
-        echo "$(date): $1" >> /tmp/backblaze-wine-startapp.log
-    else
-        echo "$(date): $1" >> "$log_file"
-    fi
+    echo "$(date): $1" >> "$log_file"
+}
+# Function to handle errors
+handle_error() {
+    echo "Error: $1" >> "$log_file"
+    start_app # Start app even if there is a problem with the updater
 }
 
-if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
-    # Function to handle errors
-    handle_error() {
-        echo "Error: $1" >> "$log_file"
-        start_app # Start app even if there is a problem with the updater
-    }
+fetch_and_install() {
+    cd "$install_exe_path" || handle_error "INSTALLER: can't navigate to $install_exe_path"
+    if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
+        log_message "INSTALLER: FORCE_LATEST_UPDATE=true - downloading latest version"
+        curl -L "https://www.backblaze.com/win32/install_backblaze.exe" --output "install_backblaze.exe"
+    else
+        log_message "INSTALLER: FORCE_LATEST_UPDATE=false - downloading pinned version $pinned_bz_version from archive.org"
+        curl -A "$custom_user_agent" -L "$pinned_bz_version_url" --output "install_backblaze.exe" || handle_error "INSTALLER: error downloading from $pinned_bz_version_url"
+    fi
+    log_message "INSTALLER: Starting install_backblaze.exe"
+    WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "install_backblaze.exe"  || handle_error "INSTALLER: Failed to install Backblaze"
 
+}
 
-
-    start_app() {
+start_app() {
     log_message "STARTAPP: Starting Backblaze version $(cat "$local_version_file")"
-    wine64 "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" -noqiet &
+    wine64 "${WINEPREFIX}drive_c/Program Files (x86)/Backblaze/bzbui.exe" -noquiet &
     sleep infinity
-    }
+}
 
+if [ -f "${WINEPREFIX}drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     check_url_validity() {
         url="$1"
         if http_code=$(curl -s -o /dev/null -w "%{http_code}" "$url"); then
@@ -73,26 +80,13 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
         compare_version="$2"
 
         if dpkg --compare-versions "$local_version" lt "$compare_version"; then
-            log_message "UPDATER: COMPARE: newer version found - local $local_version - remote $compare_version"
             return 0 # The compare_version is higher
         else
-            log_message "UPDATER: COMPARE: no new version found - local $local_version - remote $compare_version"
             return 1 # The local version is higher or equal
         fi
     }
 
-    fetch_and_install() {
-        cd "$install_exe_path" || handle_error "UPDATER: can't navigate to $install_exe_path"
-        if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
-            log_message "UPDATER: FORCE_LATEST_UPDATE=true - downloading latest version"
-            curl -L "https://www.backblaze.com/win32/install_backblaze.exe" --output "install_backblaze.exe"
-        else
-            log_message "UPDATER: FORCE_LATEST_UPDATE=false - downloading known-good version from archive.org"
-            curl -A "$custom_user_agent" -L "$pinned_bz_version_url" --output "install_backblaze.exe"
-        fi
-        log_message "UPDATER: Starting install_backblaze.exe"
-        WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "./install_backblaze.exe" || handle_error "UPDATER: Failed to install Backblaze"
-    }
+
 
     # Check if auto-updates are disabled
     if [ "$DISABLE_AUTOUPDATE" = "true" ]; then
@@ -104,7 +98,7 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
         # Main auto update logic
         if [ -f "$local_version_file" ]; then
-            log_message "UPDATER: FORCE_LATEST_UPDATE=true, updating to the latest version"
+            log_message "UPDATER: FORCE_LATEST_UPDATE=true, checking for a new version"
             urls="
                 https://ca000.backblaze.com/api/clientversion.xml
                 https://ca001.backblaze.com/api/clientversion.xml
@@ -119,7 +113,8 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
                     xml_content=$(curl -s "$url") || handle_error "UPDATER: Failed to fetch XML content"
                     xml_version=$(echo "$xml_content" | grep -o '<update win32_version="[0-9.]*"' | cut -d'"' -f2)
                     local_version=$(cat "$local_version_file") || handle_error "UPDATER: Failed to read local version from $local_version_file"
-
+                    log_message "UPDATER: Installed Version=$local_version"
+                    log_message "UPDATER: Latest Version=$xml_version"
                     if compare_versions "$local_version" "$xml_version"; then
                         log_message "UPDATER: Newer version found - downloading and installing the newer version..."
                         fetch_and_install
@@ -138,34 +133,24 @@ if [ -f "/config/wine/drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     else
         # Update process for force_latest_update set to false or anything else
         if [ -f "$local_version_file" ]; then
-            log_message "UPDATER: FORCE_LATEST_UPDATE=false, Checking if newer version than $local_version_file is available."
             local_version=$(cat "$local_version_file") || handle_error "UPDATER: Failed to read local version file"
+            log_message "UPDATER: FORCE_LATEST_UPDATE=false"
+            log_message "UPDATER: Installed Version=$local_version"
+            log_message "UPDATER: Pinned Version=$pinned_bz_version"
 
             if compare_versions "$local_version" "$pinned_bz_version"; then
-                log_message "UPDATER: FORCE_LATEST_UPDATE=false, Newer version found - downloading and installing the newer version..."
+                log_message "UPDATER: Newer version found - downloading and installing the newer version..."
                 fetch_and_install
                 start_app # Exit after successful download+installation and start app
             else
-                log_message "UPDATER: FORCE_LATEST_UPDATE=false, The local version is up to date. There may be a newer version available when using FORCE_LATEST_UPDATE=true"
+                log_message "UPDATER: Installed version is up to date. There may be a newer version available when using FORCE_LATEST_UPDATE=true"
                 start_app # Exit autoupdate and start app
             fi
         else
             handle_error "UPDATER: Local version file does not exist. Exiting updater."
         fi
     fi
-else
-    cd "/tmp"
-    mkdir -p /config/wine/ &&
-    if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
-        log_message "INSTALLER: FORCE_LATEST_UPDATE=true, Installing latest Backblaze version"
-        curl -L "https://www.backblaze.com/win32/install_backblaze.exe" --output "install_backblaze.exe" &&
-        ls -la &&
-        wine64 "install_backblaze.exe" &
-    else
-        log_message "INSTALLER: FORCE_LATEST_UPDATE=false, Installing pinned Backblaze version"
-        curl -A "$custom_user_agent" -L "$pinned_bz_version_url" --output "install_backblaze.exe"&&
-        ls -la &&
-        wine64 "install_backblaze.exe" &
-    fi
-    sleep infinity
+else ## Client not currently installed
+    fetch_and_install &&
+    start_app
 fi
