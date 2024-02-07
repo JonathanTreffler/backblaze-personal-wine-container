@@ -26,6 +26,7 @@ It runs the Backblaze client and starts a virtual X server and a VNC server with
       * [Environment Variables](#environment-variables)
       * [Config Directory](#config-directory)
       * [Ports](#ports)
+      * [Volumes](#volumes)
       * [Accessing the GUI](#accessing-the-gui)
       * [Security](#security)
          * [SSVNC](#ssvnc)
@@ -134,6 +135,31 @@ container cannot be changed, but you are free to use any port on the host side.
 |------|-----------------|-------------|
 | 5800 | Mandatory | Port used to access the application's GUI via the web interface. |
 | 5900 | Optional | Port used to access the application's GUI via the VNC protocol.  Optional if no VNC client is used. |
+
+## Volumes
+
+A minimum of 2 volumes need to be mounted to the container
+
+  * /config - This is where Wine and Backblaze will be installed
+  * Backup drives - these are the locations you wish to backup, any volume that is mounted as /drive_**driveletter**  will be mounted automatically for use in BackBlaze with their equivalent letter, for example for example /drive_d will be mounted as D:.
+
+You can mount drives with a different paths, but these will need to be mounted manually within wine using the following method
+
+1. Add your storage path as a wine drive, so Backblaze can access it
+
+    ````shell
+    docker exec --user app backblaze_personal_backup ln -s /backup_volume/ /config/wine/dosdevices/d:
+    ````
+
+1. Restart the docker to get Backblaze to recognize the new drive
+
+    ````shell
+    docker restart backblaze_personal_backup
+    ````
+
+1. Reload the Web Interface
+
+    ![Bildschirmfoto von 2022-01-16 14-49-45](https://user-images.githubusercontent.com/28999431/149662817-27f3c9e8-12ba-494c-898d-d9492541a5fb.png)
 
 ## Accessing the GUI
 
@@ -248,7 +274,7 @@ container.
 
 ## Installation:
 1. Check for yourself if using this docker complies with the Backblaze [terms of service](https://www.backblaze.com/company/terms.html)
-1. Modify the following for your setup (in terms of [ports](ports) and [environment variables](environment-variables)) and run it
+1. Modify the following for your setup (in terms of [ports](#ports), [volumes](#volumes) and [environment variables](#environment-variables)) and run it
 
     **NOTE**: root priviliges may be needed
     ````shell
@@ -274,34 +300,6 @@ container.
 1. Wait for the Download to finish
 
       ![Bildschirmfoto von 2022-01-16 14-19-08](https://user-images.githubusercontent.com/28999431/149661613-272402f9-7a5e-44a2-940b-7a5314cb3924.png)
-
-1. Click "Install" to install Wine Gecko
-
-      ![Bildschirmfoto von 2022-01-16 14-21-08](https://user-images.githubusercontent.com/28999431/149661702-9e5e27dd-8219-4462-b04b-53c13e9d49f1.png)
-
-1. Wait for the Download to finish
-
-      ![Bildschirmfoto von 2022-01-16 14-36-25](https://user-images.githubusercontent.com/28999431/149662398-2964b467-e362-4b60-a6ad-8f2a025c8c97.png)
-
-1. Click "Install" to install Wine Gecko (second dialog for Gecko)
-
-1. Wait for the Download to finish
-
-1. Add your storage path as a wine drive, so Backblaze can access it
-
-    ````shell
-    docker exec --user app backblaze_personal_backup ln -s /drive_d/ /config/wine/dosdevices/d:
-    ````
-
-1. Restart the docker to get Backblaze to recognize the new drive
-
-    ````shell
-    docker restart backblaze_personal_backup
-    ````
-
-1. Reload the Web Interface
-
-    ![Bildschirmfoto von 2022-01-16 14-49-45](https://user-images.githubusercontent.com/28999431/149662817-27f3c9e8-12ba-494c-898d-d9492541a5fb.png)
 
 1. The UI of the first step of the Backblaze installer is broken on wine, but it doesn't matter, just insert the email to your backblaze account into the input field
 
@@ -370,7 +368,7 @@ container.
         lrwxrwxrwx 1 app app    1 Jan 16 13:43 z: -> /
       ````
 
-     - If it doesn't look like above try step 10 - 11 again
+     - If it doesn't confirm you've mounted the volume in the container correctly for automatic attachment or followed the manual instructions in [volumes](#volumes)
 	 
 - The Backblaze installer `could not communicate with {URL} so installation failed. Fix your internet connection.`  
   
