@@ -70,7 +70,7 @@ fi
 
 #Configure Extra Mounts
 
-for x in {d..h}
+for x in {d..z}
 do
     if test -d "/drive_${x}" && ! test -d "${WINEPREFIX}dosdevices/${x}:"; then
         log_message "DRIVE: drive_${x} found but not mounted, mounting..."
