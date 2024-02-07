@@ -159,8 +159,6 @@ You can mount drives with different paths, but these will need to be mounted man
 
 1. Reload the Web Interface
 
-    ![Bildschirmfoto von 2022-01-16 14-49-45](https://user-images.githubusercontent.com/28999431/149662817-27f3c9e8-12ba-494c-898d-d9492541a5fb.png)
-
 ## Accessing the GUI
 
 Assuming that container's ports are mapped to the same host's ports, the
