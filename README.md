@@ -141,9 +141,9 @@ container cannot be changed, but you are free to use any port on the host side.
 A minimum of 2 volumes need to be mounted to the container
 
   * /config - This is where Wine and Backblaze will be installed
-  * Backup drives - these are the locations you wish to backup, any volume that is mounted as /drive_**driveletter** (from d up to z) will be mounted automatically for use in BackBlaze with their equivalent letter, for example for example /drive_d will be mounted as D:.
+  * Backup drives - these are the locations you wish to backup, any volume that is mounted as /drive_**driveletter** (from d up to z) will be mounted automatically for use in Backblaze with their equivalent letter, for example /drive_d will be mounted as D:
 
-You can mount drives with a different paths, but these will need to be mounted manually within wine using the following method
+You can mount drives with different paths, but these will need to be mounted manually within wine using the following method
 
 1. Add your storage path as a wine drive, so Backblaze can access it
 

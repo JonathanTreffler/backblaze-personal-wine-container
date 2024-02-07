@@ -61,11 +61,11 @@ start_app() {
     sleep infinity
 }
 
-# Pre-install Wine
+# Pre-initialize Wine
 if [ ! -d "$WINEPREFIX" ]; then
-    echo "WINE: Wine not installed, initializing"
+    echo "WINE: Wine not initialized, initializing"
     wineboot -i
-    log_message "WINE: Installed"
+    log_message "WINE: Initialization done"
 fi
 
 #Configure Extra Mounts
@@ -168,7 +168,7 @@ if [ -f "${WINEPREFIX}drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
             handle_error "UPDATER: Local version file does not exist. Exiting updater."
         fi
     fi
-else ## Client not currently installed
+else # Client currently not installed
     fetch_and_install &&
     start_app
 fi
