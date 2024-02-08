@@ -62,8 +62,9 @@ start_app() {
 }
 
 # Pre-initialize Wine
-if [ ! -d "$WINEPREFIX" ]; then
+if [ ! -f "${WINEPREFIX}system.reg" ]; then
     echo "WINE: Wine not initialized, initializing"
+    export WINEDLLOVERRIDES="mscoree=" #stops mono popup, we don't need mono anyway
     wineboot -i
     log_message "WINE: Initialization done"
 fi
