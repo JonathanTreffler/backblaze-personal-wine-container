@@ -288,18 +288,9 @@ container.
     ````
 
 1. Open the Web Interface (on the port you specified in the docker run command, in this example 8080):
-
-    ![Step 1](https://user-images.githubusercontent.com/28999431/149661532-b4fac1b2-eb40-4e5a-b466-b2551372d6f4.png)
-
-    ![Bildschirmfoto von 2022-01-16 02-46-05](https://user-images.githubusercontent.com/28999431/149661717-f066a8b6-4add-41af-bd2d-1a20c481aa07.png)
-
-1. Click "Install" to install Mono
-
-      ![Bildschirmfoto von 2022-01-16 14-17-55](https://user-images.githubusercontent.com/28999431/149661561-6a14cf08-9d76-415e-bb51-e1b62bf0b796.png)
-
-1. Wait for the Download to finish
-
-      ![Bildschirmfoto von 2022-01-16 14-19-08](https://user-images.githubusercontent.com/28999431/149661613-272402f9-7a5e-44a2-940b-7a5314cb3924.png)
+2. You may see wine being updated, this will take a couple of minutes
+   
+   ![image](https://github.com/xela1/backblaze-personal-wine-container/assets/357319/4f401b31-8d1d-40fe-85a3-ec4637c23bf5)
 
 1. The UI of the first step of the Backblaze installer is broken on wine, but it doesn't matter, just insert the email to your backblaze account into the input field
 
