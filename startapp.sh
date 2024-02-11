@@ -14,6 +14,7 @@ pinned_bz_version=$(sed -n '1p' "$pinned_bz_version_file")
 pinned_bz_version_url=$(sed -n '2p' "$pinned_bz_version_file")
 
 export WINEARCH="win64"
+export WINEDLLOVERRIDES="mscoree=" #stops mono popup, we don't need mono anyway
 
 # Disclaimer
 disclaimer_updatemode() {
@@ -62,7 +63,7 @@ start_app() {
 }
 
 # Pre-initialize Wine
-if [ ! -d "$WINEPREFIX" ]; then
+if [ ! -f "${WINEPREFIX}system.reg" ]; then
     echo "WINE: Wine not initialized, initializing"
     wineboot -i
     log_message "WINE: Initialization done"
