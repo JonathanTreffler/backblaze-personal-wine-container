@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Automatically create symlinks for mounts (#110, thanks @xela1)
+- Enable Wine Virtual Desktop mode by default
 
 ### Changed
 - Updated known-good Backblaze version to 9.0.1.763
