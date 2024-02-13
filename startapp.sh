@@ -39,16 +39,16 @@ done
 # Set Virtual Desktop
 cd $WINEPREFIX
 if [ "$DISABLE_VIRTUAL_DESKTOP" = "true" ]; then
+    log_message "WINE: DISABLE_VIRTUAL_DESKTOP=true - Virtual Desktop mode will be disabled"
     winetricks vd=off
-    log_message "WINE: Virtual Desktop mode disabled"
 else
-    # Check if with and height are defined
+    # Check if width and height are defined
     if [ -n "$DISPLAY_WIDTH" ] && [ -n "$DISPLAY_HEIGHT" ]; then
     log_message "WINE: Enabling Virtual Desktop mode with $DISPLAY_WIDTH:$DISPLAY_WIDTH aspect ratio"
     winetricks vd="$DISPLAY_WIDTH"x"$DISPLAY_HEIGHT"
     else
         # Default aspect ratio
-        log_message "WINE: Enable Virtual Desktop mode with recommended aspect ratio"
+        log_message "WINE: Enabling Virtual Desktop mode with recommended aspect ratio"
         winetricks vd="900x700"
     fi
 fi
