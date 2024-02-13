@@ -14,28 +14,58 @@ pinned_bz_version=$(sed -n '1p' "$pinned_bz_version_file")
 pinned_bz_version_url=$(sed -n '2p' "$pinned_bz_version_file")
 
 export WINEARCH="win64"
-export WINEDLLOVERRIDES="mscoree=" #stops mono popup, we don't need mono anyway
-
-# Disclaimer
-disclaimer_updatemode() {
-    # Check if auto-updates are disabled
-    if [ "$DISABLE_AUTOUPDATE" = "true" ]; then
-        echo "Auto-updates are disabled. Backblaze won't be updated."
-    else
-        # Check the status of FORCE_LATEST_UPDATE
-        if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
-            echo "FORCE_LATEST_UPDATE is enabled which may brick your installation."
-        else
-            echo "FORCE_LATEST_UPDATE is disabled. Using known-good version of Backblaze."
-        fi
-    fi
-}
-
-disclaimer_updatemode
+export WINEDLLOVERRIDES="mscoree=" # Disable Mono installation
 
 log_message() {
     echo "$(date): $1" >> "$log_file"
 }
+
+# Pre-initialize Wine
+if [ ! -f "${WINEPREFIX}system.reg" ]; then
+    echo "WINE: Wine not initialized, initializing"
+    wineboot -i
+    log_message "WINE: Initialization done"
+fi
+
+#Configure Extra Mounts
+for x in {d..z}
+do
+    if test -d "/drive_${x}" && ! test -d "${WINEPREFIX}dosdevices/${x}:"; then
+        log_message "DRIVE: drive_${x} found but not mounted, mounting..."
+        ln -s "/drive_${x}/" "${WINEPREFIX}dosdevices/${x}:"
+    fi
+done
+
+# Set Virtual Desktop
+cd $WINEPREFIX
+if [ "$DISABLE_VIRTUAL_DESKTOP" = "true" ]; then
+    log_message "WINE: DISABLE_VIRTUAL_DESKTOP=true - Virtual Desktop mode will be disabled"
+    winetricks vd=off
+else
+    # Check if width and height are defined
+    if [ -n "$DISPLAY_WIDTH" ] && [ -n "$DISPLAY_HEIGHT" ]; then
+    log_message "WINE: Enabling Virtual Desktop mode with $DISPLAY_WIDTH:$DISPLAY_WIDTH aspect ratio"
+    winetricks vd="$DISPLAY_WIDTH"x"$DISPLAY_HEIGHT"
+    else
+        # Default aspect ratio
+        log_message "WINE: Enabling Virtual Desktop mode with recommended aspect ratio"
+        winetricks vd="900x700"
+    fi
+fi
+
+# Disclaimer
+    # Check if auto-updates are disabled
+if [ "$DISABLE_AUTOUPDATE" = "true" ]; then
+    echo "Auto-updates are disabled. Backblaze won't be updated."
+else
+    # Check the status of FORCE_LATEST_UPDATE
+    if [ "$FORCE_LATEST_UPDATE" = "true" ]; then
+        echo "FORCE_LATEST_UPDATE is enabled which may brick your installation."
+    else
+        echo "FORCE_LATEST_UPDATE is disabled. Using known-good version of Backblaze."
+    fi
+fi
+
 # Function to handle errors
 handle_error() {
     echo "Error: $1" >> "$log_file"
@@ -61,24 +91,6 @@ start_app() {
     wine64 "${WINEPREFIX}drive_c/Program Files (x86)/Backblaze/bzbui.exe" -noquiet &
     sleep infinity
 }
-
-# Pre-initialize Wine
-if [ ! -f "${WINEPREFIX}system.reg" ]; then
-    echo "WINE: Wine not initialized, initializing"
-    wineboot -i
-    log_message "WINE: Initialization done"
-fi
-
-#Configure Extra Mounts
-
-for x in {d..z}
-do
-    if test -d "/drive_${x}" && ! test -d "${WINEPREFIX}dosdevices/${x}:"; then
-        log_message "DRIVE: drive_${x} found but not mounted, mounting..."
-        ln -s "/drive_${x}/" "${WINEPREFIX}dosdevices/${x}:"
-    fi
-done
-
 
 if [ -f "${WINEPREFIX}drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
     check_url_validity() {
