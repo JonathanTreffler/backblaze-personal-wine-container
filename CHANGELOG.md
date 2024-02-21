@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.7.2 - 2024-02-21
+
+### Changed
+- Install and update Backblaze in the background
+
 ## 1.7.1 - 2024-02-15
 
 ### Changed
