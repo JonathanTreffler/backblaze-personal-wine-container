@@ -76,7 +76,7 @@ Here are the main components of this image:
 |-----|-------------|
 | latest | Latest stable version of the image based on ubuntu 20 |
 | ubuntu22 | Latest stable version of the image based on ubuntu 22 |
-| ubuntu18 | Latest stable version of the image based on ubuntu 18 |
+| ubuntu18 | Latest stable version of the image based on ubuntu 18 **(End of Life - unmaintained)** |
 | v1.x | Versioned stable releases based on ubuntu 20 |
 | main | Automatic build of the main branch (may be unstable) based on ubuntu 20 |
 
@@ -362,16 +362,6 @@ container.
 
      - If it doesn't confirm you've mounted the volume in the container correctly for automatic attachment or followed the manual instructions in [volumes](#volumes)
 	 
-- The Backblaze installer `could not communicate with {URL} so installation failed. Fix your internet connection.`  
-  
-  ![Screenshot](https://user-images.githubusercontent.com/96458002/151139378-6c493907-96a1-45ac-95f2-b49051c385e8.png)
-  
-  - **Explanation**: The host device is a Synology Network Attached Storage, or has some sort of incompatibility with `unbuntu20`, which is the default.
-  
-  - **Solution**: Use the `ubuntu18` tag instead
-  
-  - **For More Information**: See [#4](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/4)
-
 - I can only see a black screen when I start the container
 
   - **Explanation**: The Docker container may have insufficient permissions to download and install Backblaze.
