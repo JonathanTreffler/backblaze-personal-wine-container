@@ -76,7 +76,7 @@ Here are the main components of this image:
 |-----|-------------|
 | latest | Latest stable version of the image based on ubuntu 20 |
 | ubuntu22 | Latest stable version of the image based on ubuntu 22 |
-| ubuntu18 | Latest stable version of the image based on ubuntu 18  **(unmaintained - not recommended)** |
+| ubuntu18 | Latest stable version of the image based on ubuntu 18 **(End of Life - unmaintained)** |
 | v1.x | Versioned stable releases based on ubuntu 20 |
 | main | Automatic build of the main branch (may be unstable) based on ubuntu 20 |
 
