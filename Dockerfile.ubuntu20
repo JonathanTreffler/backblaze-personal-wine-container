@@ -1,18 +1,5 @@
 FROM jlesage/baseimage-gui:ubuntu-20.04-v4@sha256:7727052607e9b69eeb1bfce717effa1e3abf725b431118ff35226bc63a1c72e8
 
-ENV WINEPREFIX /config/wine/
-ENV LANG en_US.UTF-8
-ENV APP_NAME="Backblaze Personal Backup"
-ENV FORCE_LATEST_UPDATE="false"
-ENV DISABLE_AUTOUPDATE="false"
-ENV DISABLE_VIRTUAL_DESKTOP="false"
-ENV DISPLAY_WIDTH="900"
-ENV DISPLAY_HEIGHT="700"
-# Disable WINE Debug messages
-ENV WINEDEBUG -all
-# Set DISPLAY to allow GUI programs to be run
-ENV DISPLAY=:0
-
 RUN apt-get update
 
 RUN apt-get install -y curl software-properties-common gnupg2 winbind xvfb
@@ -28,11 +15,27 @@ RUN apt-get install -y winetricks
 
 RUN apt-get clean -y && apt-get autoremove -y
 
+ENV WINEPREFIX /config/wine/
+    
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=en_US.UTF-8
+
+ENV LANG en_US.UTF-8
+
+ENV APP_NAME="Backblaze Personal Backup"
+ENV FORCE_LATEST_UPDATE="false"
+ENV DISABLE_AUTOUPDATE="false"
+ENV DISABLE_VIRTUAL_DESKTOP="false"
+ENV DISPLAY_WIDTH="900"
+ENV DISPLAY_HEIGHT="700"
+
+# Disable WINE Debug messages
+ENV WINEDEBUG -all
+# Set DISPLAY to allow GUI programs to be run
+ENV DISPLAY=:0
 
 EXPOSE 5900
 
