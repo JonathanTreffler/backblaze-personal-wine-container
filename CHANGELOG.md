@@ -6,10 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## 1.7.2 - 2024-02-23
+## 1.7.2 - 2024-02-24
 
 ### Changed
-- Install and update Backblaze in the background
+- Update known-good Backblaze version to 9.0.1.767
+- Update Backblaze in the background 
 - Mark ubuntu18 tag as "End of Life" and remove ubuntu18 specific troubleshooting from readme
 
 ## 1.7.1 - 2024-02-15
