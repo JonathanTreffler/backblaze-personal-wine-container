@@ -118,7 +118,7 @@ Environment variables can be set by adding one or more arguments `-e "<VAR>=<VAL
 |`VNC_PASSWORD`| Password needed to connect to the application's GUI.  See the [VNC Password](#vnc-password) section for more details. | (unset) |
 |`X11VNC_EXTRA_OPTS`| Extra options to pass to the x11vnc server running in the Docker container.  **WARNING**: For advanced users. Do not use unless you know what you are doing. | (unset) |
 |`ENABLE_CJK_FONT`| When set to `1`, open-source computer font `WenQuanYi Zen Hei` is installed.  This font contains a large range of Chinese/Japanese/Korean characters. | `0` |
-|`STARTUP_LOGFILE`| The location of where to write logs of the startup script responsible for installing & starting the Backblaze app. The default location goes to C:\ and so is also backed up to Backblaze. | `/config/wine/dosdevices/c:/backblaze-wine-startapp.log` |
+|`STARTUP_LOGFILE`| The location for writing logs of the startup script, responsible for installing and starting the Backblaze app.  The default path is also backed up to Backblaze. | `/config/wine/dosdevices/c:/backblaze-wine-startapp.log` |
 
 ## Config Directory
 Inside the container, wine's configuration and with it Backblaze's configuration is stored in the
