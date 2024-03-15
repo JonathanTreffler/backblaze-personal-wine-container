@@ -5,7 +5,7 @@ set -x
 release_version=$(cat "/RELEASE_VERSION") #backblaze-personal-wine version tag
 local_version_file="${WINEPREFIX}dosdevices/c:/ProgramData/Backblaze/bzdata/bzreports/bzserv_version.txt"
 install_exe_path="${WINEPREFIX}dosdevices/c:/"
-log_file="${WINEPREFIX}dosdevices/c:/backblaze-wine-startapp.log"
+log_file="${STARTUP_LOGFILE:-${WINEPREFIX}dosdevices/c:/backblaze-wine-startapp.log}"
 custom_user_agent="backblaze-personal-wine/$release_version (JonathanTreffler, +https://github.com/JonathanTreffler/backblaze-personal-wine-container), CFNetwork"
 
 # Extracting variables from the PINNED_VERSION file
