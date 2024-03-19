@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.8 - 2024-03-15
+
+### Changed
+- Update Backblaze automatically in the background
+- Make startapp log file location configurable by an env var (#129, thanks @brokeh)
+
 ## 1.7.2 - 2024-02-24
 
 ### Changed
