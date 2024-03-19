@@ -8,31 +8,34 @@ ENV DISABLE_AUTOUPDATE="false"
 ENV DISABLE_VIRTUAL_DESKTOP="false"
 ENV DISPLAY_WIDTH="900"
 ENV DISPLAY_HEIGHT="700"
-# Disable WINE Debug messages
 ENV WINEDEBUG -all
-# Set DISPLAY to allow GUI programs to be run
 ENV DISPLAY=:0
 
-RUN apt-get update
-
-RUN apt-get install -y curl software-properties-common gnupg2 winbind xvfb
-
-RUN dpkg --add-architecture i386
-RUN curl -O https://dl.winehq.org/wine-builds/winehq.key
-RUN apt-key add winehq.key
-RUN add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ jammy main'
-RUN apt-get update
-RUN apt-get install -y winehq-stable=9.0*
-
-RUN apt-get install -y winetricks
-
-RUN apt-get clean -y && apt-get autoremove -y
-    
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
-
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+# Install necessary packages
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    software-properties-common \
+    gnupg2 \
+    winbind \
+    xvfb \
+    winetricks && \
+    dpkg --add-architecture i386 && \
+    curl -O https://dl.winehq.org/wine-builds/winehq.key && \
+    apt-key add winehq.key && \
+    add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ jammy main' && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends winehq-stable=9.0* && \
+    apt-get clean -y && apt-get autoremove -y && \
+    apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales && \
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
-    update-locale LANG=en_US.UTF-8
+    update-locale LANG=en_US.UTF-8 && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get purge -y --auto-remove curl && \
+    rm -rf /var/cache/apt/* && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/*
 
 EXPOSE 5900
 
