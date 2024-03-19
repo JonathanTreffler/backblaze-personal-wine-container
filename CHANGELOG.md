@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.8.1
+
+### Changed
+- Optimize Dockerfiles to reduce layer count
+
 ## 1.8 - 2024-03-15
 
 ### Changed
@@ -18,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update known-good Backblaze version to 9.0.1.767
 - Update Backblaze in the background 
 - Mark ubuntu18 tag as "End of Life" and remove ubuntu18 specific troubleshooting from readme
+
 
 ## 1.7.1 - 2024-02-15
 
@@ -36,7 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Backblaze will automatically be updated to a known-good version mentioned above, if your installed version is older.
 > This download of the new version may take some time, so you will only see a black screen until the download is finished. After that, the installer appears and you can update Backblaze by clicking on "install".
 - Fix error `Make sure that your X server is running and that $DISPLAY is set correctly` when running basic CLI commands like `winecfg` by adding the DISPLAY environment variable to the Dockerfiles
-
 
 ## 1.6 - 2024-01-22
 
