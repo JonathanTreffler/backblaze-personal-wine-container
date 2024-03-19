@@ -26,7 +26,6 @@ RUN apt-get update && \
     add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ bionic main' && \
     apt-get update && \
     apt-get install -y --no-install-recommends winehq-stable=8.0.1* && \
-    apt-get clean -y && apt-get autoremove -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y locales && \
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
@@ -35,7 +34,8 @@ RUN apt-get update && \
     apt-get purge -y --auto-remove curl && \
     rm -rf /var/cache/apt/* && \
     rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/*
+    rm -rf /tmp/* \
+    apt-get clean -y && apt-get autoremove -y && \
 
 EXPOSE 5900
 
