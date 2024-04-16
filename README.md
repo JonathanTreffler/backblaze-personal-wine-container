@@ -277,7 +277,9 @@ container.
 ## Installation:
 1. Check for yourself if using this docker complies with the Backblaze [terms of service](https://www.backblaze.com/company/terms.html)
 1. Modify the following for your setup (in terms of [ports](#ports), [volumes](#volumes) and [environment variables](#environment-variables)) and run it
-
+   
+    **(for Unraid users, instead of running this command navigate to the Apps tab, search for this docker and install it)**
+   
     **NOTE**: root priviliges may be needed
     ````shell
     docker run \
