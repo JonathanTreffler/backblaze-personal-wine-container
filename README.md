@@ -75,6 +75,7 @@ Here are the main components of this image:
 | Tag | Description |
 |-----|-------------|
 | latest | Latest stable version of the image based on ubuntu 22 |
+| ubuntu22 | Latest stable version of the image based on ubuntu 22 |
 | ubuntu20 | Latest stable version of the image based on ubuntu 20 |
 | ubuntu18 | Latest stable version of the image based on ubuntu 18 **(End of Life - unmaintained)** |
 | v1.x | Versioned stable releases based on ubuntu 22 |
