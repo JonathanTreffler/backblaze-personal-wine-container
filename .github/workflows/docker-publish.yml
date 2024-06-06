@@ -66,7 +66,9 @@ jobs:
           file: ./Dockerfile.ubuntu22
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:ubuntu22
           labels: ${{ steps.meta.outputs.labels }}
 
   build_ubuntu20:
