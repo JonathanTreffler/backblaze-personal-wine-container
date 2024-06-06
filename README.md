@@ -74,13 +74,13 @@ Here are the main components of this image:
 
 | Tag | Description |
 |-----|-------------|
-| latest | Latest stable version of the image based on ubuntu 20 |
-| ubuntu22 | Latest stable version of the image based on ubuntu 22 |
+| latest | Latest stable version of the image based on ubuntu 22 |
+| ubuntu20 | Latest stable version of the image based on ubuntu 20 |
 | ubuntu18 | Latest stable version of the image based on ubuntu 18 **(End of Life - unmaintained)** |
-| v1.x | Versioned stable releases based on ubuntu 20 |
-| main | Automatic build of the main branch (may be unstable) based on ubuntu 20 |
+| v1.x | Versioned stable releases based on ubuntu 22 |
+| main | Automatic build of the main branch (may be unstable) based on ubuntu 22 |
 
-There are currently no versioned ubuntu22 or ubuntu18 builds.
+There are no versioned ubuntu20 or ubuntu18 builds.
 
 ### Platforms
 
