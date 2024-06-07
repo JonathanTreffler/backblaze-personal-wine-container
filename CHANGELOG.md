@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.10
+
+### Changed
+- Update known-good Backblaze version to 9.0.1.777
+- Ubuntu 22 is now the default versioned image
+
 ## 1.9
 
 ### Changed
