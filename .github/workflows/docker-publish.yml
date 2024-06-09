@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dockerfile: [ubuntu22, ubuntu20, ubuntu18]
+        dockerfile: [ubuntu22, ubuntu20, ubuntu18, alpine]
         include:
           - dockerfile: ubuntu22
             tags: |
@@ -36,6 +36,8 @@ jobs:
             tags: ubuntu20
           - dockerfile: ubuntu18
             tags: ubuntu18
+          - dockerfile: alpine
+            tags: alpine
 
     steps:
       - name: Checkout repository
