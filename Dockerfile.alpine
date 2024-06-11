@@ -18,10 +18,8 @@ RUN apk update && \
         wine \
         samba \
         xvfb \
-<<<<<<< HEAD
         dpkg \
-=======
->>>>>>> 91262eb (add alpine Dockerfile)
+        dpkg \
     && apk add --no-cache --virtual .build-deps \
     && curl -Lo /usr/local/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks \
     && chmod +x /usr/local/bin/winetricks \
