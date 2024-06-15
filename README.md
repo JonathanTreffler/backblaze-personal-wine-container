@@ -39,11 +39,9 @@ It runs the Backblaze client and starts a virtual X server and a VNC server with
 
 ## Project Status
 
-This project is pretty new, but i would consider it quite stable.
+This docker should just work for most people. But if you for example have a complex permissions setup in the filesystem you are trying to back up you will need good knowledge of docker to get it set up.
 
-Backing up is tested well, Restoring is not tested very well so far.
-
-Still please be attentive during the install process, because as the docker has read/write access to all the data you want to back up and if you make a grave mistake you could delete stuff.
+Still please be attentive during the install process: The docker by design has read/write access to all the data you are trying to back up and if you make a grave mistake you could delete stuff.
 
 ## Docker Images
 ### Content
