@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.11
+
+### Changed
+- It seems that Backblaze has disabled our source of the known-good Backblaze installer on archive.org
+  Currently, all new installs will get the latest Backblaze version installed
+  Also, the autoupdate functionality is now disabled by default because of this change.
+
 ## 1.10
 
 ### Changed

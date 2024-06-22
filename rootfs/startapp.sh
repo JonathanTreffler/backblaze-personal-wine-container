@@ -12,6 +12,7 @@ pinned_bz_version_file="/PINNED_BZ_VERSION"
 pinned_bz_version=$(sed -n '1p' "$pinned_bz_version_file")
 pinned_bz_version_url=$(sed -n '2p' "$pinned_bz_version_file")
 
+export FORCE_LATEST_UPDATE="true" #disable pinned version since URL is excluded from archive.org
 export WINEARCH="win64"
 export WINEDLLOVERRIDES="mscoree=" # Disable Mono installation
 
