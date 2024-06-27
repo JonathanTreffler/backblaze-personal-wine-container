@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:alpine-3.19-v4@sha256:dfa0ac750d66f87286576da33e1bceab0f9cc3145f592b86166b5d83492daa44
+FROM jlesage/baseimage-gui:alpine-3.20-v4.6@sha256:261e82b16e446330236caa25248704e77197729542b19a560cde28e950ee8d1b
 
 ENV WINEPREFIX="/config/wine/"
 ENV APP_NAME="Backblaze Personal Backup"
@@ -15,7 +15,7 @@ ENV DISPLAY=:0
 RUN apk update && \
     apk add --no-cache \
         curl \
-        wine \
+        wine=9.0-r0 \
         samba \
         xvfb \
         dpkg \
