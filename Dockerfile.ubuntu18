@@ -3,7 +3,7 @@ FROM jlesage/baseimage-gui:ubuntu-18.04-v4.6@sha256:e6505b30ebdff43ddda935c8b987
 ENV WINEPREFIX /config/wine/
 ENV LANG en_US.UTF-8
 ENV APP_NAME="Backblaze Personal Backup"
-ENV FORCE_LATEST_UPDATE="false"
+ENV FORCE_LATEST_UPDATE="true"
 ENV DISABLE_AUTOUPDATE="true"
 ENV DISABLE_VIRTUAL_DESKTOP="false"
 ENV DISPLAY_WIDTH="900"
