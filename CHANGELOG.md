@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.12
+
+### Added
+- Alpine image based on Alpine 3.20 with Wine 9.0
+  This is a very lightweight image wich is about 80% smaller than the default image based on Ubuntu 22.04
+> [!NOTE]  
+> The Alpine image is currently in early development and will contain bugs.
+
+
 ## 1.11
 
 ### Changed

@@ -81,6 +81,7 @@ Here are the main components of this image:
 | main | Automatic build of the main branch (may be unstable) based on ubuntu 22 |
 
 There are no versioned ubuntu20, ubuntu18 or alpine builds.
+All tags are usually easily interchangeable.
 
 ### Platforms
 
