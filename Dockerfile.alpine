@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:alpine-3.20-v4.6.1@sha256:15c6f519f20efe16d789b700c09e876798a97b84eb49663fbb7228364571afda
+FROM jlesage/baseimage-gui:alpine-3.20-v4.6.2@sha256:4dab23c92f8cf78780aa67c4929ef7ae00862dc7ffa3b3d2468a1726ea16987d
 
 ENV WINEPREFIX /config/wine/
 ENV APP_NAME="Backblaze Personal Backup"
