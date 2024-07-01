@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-20.04-v4.6.2@sha256:34a8fb40df7aef794a425db587f445938edf3f020b624b78c28f422cde1ddea3
+FROM jlesage/baseimage-gui:ubuntu-20.04-v4.6.3@sha256:cdb263fc9e23ec5799fb9617c394d8eb9708539beab0506d733e5ae1be66fe1b
 ENV WINEPREFIX /config/wine/
 ENV LANG en_US.UTF-8
 ENV APP_NAME="Backblaze Personal Backup"
