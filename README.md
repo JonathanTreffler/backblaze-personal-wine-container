@@ -104,7 +104,7 @@ Environment variables can be set by adding one or more arguments `-e "<VAR>=<VAL
 
 | Variable       | Description                                  | Default |
 |----------------|----------------------------------------------|---------|
-|`DISABLE_VIRTUAL_DESKTOP` | Disables Wine's Virtual Desktop Mode | false |
+|`DISABLE_VIRTUAL_DESKTOP` | Disables Wine's Virtual Desktop Mode | true |
 |`DISABLE_AUTOUPDATE` | Disables the auto-update of the backblaze client to the latest known-good version at the time of the docker version release | true |
 |`FORCE_LATEST_UPDATE`| Forces the auto updater to download the newest version of the backblaze client from the backblaze servers instead of a known-good version from the Internet Archive | true |
 |`UMASK`| Mask that controls how file permissions are set for newly created files. The value of the mask is in octal notation.  By default, this variable is not set and the default umask of `022` is used, meaning that newly created files are readable by everyone, but only writable by the owner. See the following online umask calculator: http://wintelguy.com/umask-calc.pl | (unset) |
