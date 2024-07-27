@@ -26,17 +26,19 @@ ENV WINEDEBUG -all
 ENV DISPLAY=:0
 
 RUN apt-get update && \
-    apt-get install -y curl software-properties-common gnupg2 winbind xvfb && \
+    apt-get install -y --no-install-recommends curl software-properties-common gnupg2 winbind xvfb && \
     dpkg --add-architecture i386 && \
     curl -O https://dl.winehq.org/wine-builds/winehq.key && \
     apt-key add winehq.key && \
     add-apt-repository "deb https://dl.winehq.org/wine-builds/ubuntu/ ${CODE_NAME} main" && \
-    apt-get install -y winehq-stable=${WINE_VERSION} && \
-    apt-get install -y winetricks && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y locales && \
+    apt-get install -y --no-install-recommends winehq-stable=${WINE_VERSION} && \
+    apt-get install -y --no-install-recommends winetricks && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends locales && \
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
-    update-locale LANG=en_US.UTF-8
+    update-locale LANG=en_US.UTF-8 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 EXPOSE 5900
 
