@@ -24,17 +24,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dockerfile: [ubuntu22, ubuntu20, ubuntu18]
+        buildvariant: [ubuntu22, ubuntu20, ubuntu18]
         include:
-          - dockerfile: ubuntu22
+          - buildvariant: ubuntu22
             tags: |
               main
               latest
               ubuntu22
               ${{ github.ref_name }}
-          - dockerfile: ubuntu20
+          - buildvariant: ubuntu20
             tags: ubuntu20
-          - dockerfile: ubuntu18
+          - buildvariant: ubuntu18
             tags: ubuntu18
 
     steps:
@@ -82,10 +82,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.${{ matrix.dockerfile }}
+          file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          build-args: BUILDVARIANT=${{ matrix.buildvariant }}
