@@ -12,8 +12,8 @@ ARG CODE_NAME=bionic
 
 FROM ${BUILDVARIANT}
 
-ENV WINEPREFIX /config/wine/
-ENV LANG en_US.UTF-8
+ENV WINEPREFIX=/config/wine/
+ENV LANG=en_US.UTF-8
 ENV APP_NAME="Backblaze Personal Backup"
 ENV FORCE_LATEST_UPDATE="true"
 ENV DISABLE_AUTOUPDATE="true"
@@ -21,7 +21,7 @@ ENV DISABLE_VIRTUAL_DESKTOP="false"
 ENV DISPLAY_WIDTH="900"
 ENV DISPLAY_HEIGHT="700"
 # Disable WINE Debug messages
-ENV WINEDEBUG -all
+ENV WINEDEBUG=-all
 # Set DISPLAY to allow GUI programs to be run
 ENV DISPLAY=:0
 
