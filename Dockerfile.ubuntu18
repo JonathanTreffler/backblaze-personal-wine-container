@@ -1,11 +1,11 @@
-FROM jlesage/baseimage-gui:ubuntu-18.04-v4@sha256:8db7852ce0299e6e8ca956ef4f20dcb0ab1064f7431300e454d0f4535756334f
+FROM jlesage/baseimage-gui:ubuntu-18.04-v4.6.4@sha256:426931774d9079a0f10540d02dd623356f4a2bea3d6b47c59adf1be4dbed1741
 
 ENV WINEPREFIX /config/wine/
 ENV LANG en_US.UTF-8
 ENV APP_NAME="Backblaze Personal Backup"
-ENV FORCE_LATEST_UPDATE="false"
+ENV FORCE_LATEST_UPDATE="true"
 ENV DISABLE_AUTOUPDATE="true"
-ENV DISABLE_VIRTUAL_DESKTOP="false"
+ENV DISABLE_VIRTUAL_DESKTOP="true"
 ENV DISPLAY_WIDTH="900"
 ENV DISPLAY_HEIGHT="700"
 # Disable WINE Debug messages
@@ -25,8 +25,6 @@ RUN apt-get update && \
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=en_US.UTF-8
-
-EXPOSE 5900
 
 COPY rootfs/ /
 RUN chmod +x /startapp.sh

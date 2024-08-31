@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -x
 
 # Define globals
@@ -15,6 +15,15 @@ pinned_bz_version_url=$(sed -n '2p' "$pinned_bz_version_file")
 export FORCE_LATEST_UPDATE="true" #disable pinned version since URL is excluded from archive.org
 export WINEARCH="win64"
 export WINEDLLOVERRIDES="mscoree=" # Disable Mono installation
+
+# Determine the Linux distribution
+if [ -f /etc/alpine-release ]; then
+    DISTRO="alpine"
+elif [ -f /etc/debian_version ]; then
+    DISTRO="debian"
+else
+    DISTRO=$(grep -i '^ID=' /etc/os-release | cut -d'=' -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')
+fi
 
 log_message() {
     echo "$(date): $1" >> "$log_file"
@@ -37,19 +46,23 @@ do
 done
 
 # Set Virtual Desktop
-cd $WINEPREFIX
-if [ "$DISABLE_VIRTUAL_DESKTOP" = "true" ]; then
-    log_message "WINE: DISABLE_VIRTUAL_DESKTOP=true - Virtual Desktop mode will be disabled"
-    winetricks vd=off
-else
-    # Check if width and height are defined
-    if [ -n "$DISPLAY_WIDTH" ] && [ -n "$DISPLAY_HEIGHT" ]; then
-    log_message "WINE: Enabling Virtual Desktop mode with $DISPLAY_WIDTH:$DISPLAY_WIDTH aspect ratio"
-    winetricks vd="$DISPLAY_WIDTH"x"$DISPLAY_HEIGHT"
-    else
-        # Default aspect ratio
-        log_message "WINE: Enabling Virtual Desktop mode with recommended aspect ratio"
-        winetricks vd="900x700"
+if [ "$DISTRO" != "alpine" ]; then
+    if [ -f "${WINEPREFIX}drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
+        cd $WINEPREFIX
+        if [ "$DISABLE_VIRTUAL_DESKTOP" = "true" ]; then
+            log_message "WINE: DISABLE_VIRTUAL_DESKTOP=true - Virtual Desktop mode will be disabled"
+            winetricks vd=off
+        else
+            # Check if width and height are defined
+            if [ -n "$DISPLAY_WIDTH" ] && [ -n "$DISPLAY_HEIGHT" ]; then
+                log_message "WINE: Enabling Virtual Desktop mode with $DISPLAY_WIDTH:$DISPLAY_HEIGHT aspect ratio"
+                winetricks vd="$DISPLAY_WIDTH"x"$DISPLAY_HEIGHT"
+            else
+                # Default aspect ratio
+                log_message "WINE: Enabling Virtual Desktop mode with recommended aspect ratio"
+                winetricks vd="900x700"
+            fi
+        fi
     fi
 fi
 
@@ -83,12 +96,24 @@ fetch_and_install() {
     fi
     log_message "INSTALLER: Starting install_backblaze.exe"
     if [ -f "${WINEPREFIX}drive_c/Program Files (x86)/Backblaze/bzbui.exe" ]; then
-        WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "install_backblaze.exe" -nogui || handle_error "INSTALLER: Failed to install Backblaze"
+        WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "install_backblaze.exe" -nogui &
     else
-        WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "install_backblaze.exe" || handle_error "INSTALLER: Failed to install Backblaze"
+        WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "install_backblaze.exe" &
     fi
-
-}
+    log_message "INSTALLER: Waiting for installer to finish"
+    # Wait for the installer to start
+    while [ "$(pgrep bzdoinstall)" = "" ]
+    do
+        sleep 1
+    done
+    # Wait for the bzgui to start
+    while [ "$(pgrep bzbui)" = "" ]
+    do
+        sleep 1
+    done
+    # Now that the install is complete and the UI frozen, wait 30 seconds and restart the app
+    sleep 30
+    kill $(pgrep bzbui) $(pgrep bzdoinstall) $(pgrep install_backblaze)
 
 start_app() {
     log_message "STARTAPP: Starting Backblaze version $(cat "$local_version_file")"
