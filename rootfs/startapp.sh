@@ -84,7 +84,6 @@ fetch_and_install() {
     fi
     log_message "INSTALLER: Starting install_backblaze.exe"
     WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" wine64 "install_backblaze.exe" || handle_error "INSTALLER: Failed to install Backblaze"
-    fi
 
 }
 
