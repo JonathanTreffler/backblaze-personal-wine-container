@@ -33,7 +33,7 @@ It runs the Backblaze client and starts a virtual X server and a VNC server with
          * [Certificates](#certificates)
          * [VNC Password](#vnc-password)
          * [DH Parameters](#dh-parameters)
-      * **[Installation](#installation)**
+      * **[Installation Guide](#installation-guide)**
       * [Additional Information](#additional-information)
       * [Credits](#credits)
 
@@ -74,7 +74,7 @@ Here are the main components of this image:
 |-----|-------------|
 | latest | Latest stable version of the image based on ubuntu 22 |
 | ubuntu22 | Latest stable version of the image based on ubuntu 22 |
-| ubuntu20 | Latest stable version of the image based on ubuntu 20 |
+| ubuntu20 | Latest stable version of the image based on ubuntu 20 **(Not recommended anymore)** |
 | ubuntu18 | Latest stable version of the image based on ubuntu 18 **(End of Life - unmaintained)** |
 | v1.x | Versioned stable releases based on ubuntu 22 |
 | main | Automatic build of the main branch (may be unstable) based on ubuntu 22 |
@@ -273,7 +273,8 @@ container.
 [DH key-exchange]: https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange
 [OpenSSL Wiki]: https://wiki.openssl.org/index.php/Diffie_Hellman
 
-## Installation:
+## Installation Guide:
+1. Understand, that this docker is a volunteer project, not a commercial product. Some thinkering is to be expected, community based solution finding is encouraged in the issues. If something does not work: look for an open issue about the topic, if there isn't create one. If there is one read through it to see if somebody has found a workaround/fix. If you are a developer I highly encourage you to turn your fix into a Pull Request to allow others to benefit from it.
 1. Check for yourself if using this docker complies with the Backblaze [terms of service](https://www.backblaze.com/company/terms.html)
 1. Modify the following for your setup (in terms of [ports](#ports), [volumes](#volumes) and [environment variables](#environment-variables)) and run it
    
