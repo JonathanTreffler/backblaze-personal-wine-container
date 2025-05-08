@@ -25,6 +25,7 @@ if [ ! -f "${WINEPREFIX}system.reg" ]; then
     echo "WINE: Wine not initialized, initializing"
     wineboot -i
     WINETRICKS_ACCEPT_EULA=1 winetricks -q -f dotnet48
+    winetricks -q win10
     log_message "WINE: Initialization done"
 fi
 
