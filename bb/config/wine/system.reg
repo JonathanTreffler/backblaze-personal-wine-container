@@ -1,0 +1,16 @@
+WINE REGISTRY Version 2
+;; All keys relative to REGISTRY\\Machine
+
+#arch=win64
+
+[Software\\Classes\\Wow6432Node] 1750818979
+#time=1dbe579eebed536
+
+[Software\\Classes\\Wow6464Node] 1750818979
+#time=1dbe579eebed536
+
+[Software\\Classes\\WowAA32Node] 1750818979
+#time=1dbe579eebed536
+
+[Software\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\009] 1750818979
+#time=1dbe579eebed536

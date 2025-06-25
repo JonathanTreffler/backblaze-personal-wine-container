@@ -435,3 +435,26 @@ This project was made by:
 <a href="https://github.com/JonathanTreffler/backblaze-personal-wine-container/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=JonathanTreffler/backblaze-personal-wine-container" />
 </a>
+
+
+```shell
+docker build -t backblaze -f Dockerfile.ubuntu22-2 .
+
+docker restart backblaze
+
+docker run -p 8080:5800 --init --name backblaze -v "/home/analyst/bb/test/:/drive_d/" -v "/home/analyst/bb/config/:/config/" backblaze
+
+docker exec --user app backblaze ln -s /home/analyst/bb/config /config/wine/dosdevices/d:c
+
+docker stop backblaze
+
+docker start backblaze
+
+# docker run \
+#     -p 8080:5800 \
+#     --init \
+#     --name backblaze_personal_backup \
+#     -v "[backup folder]/:/drive_d/" \
+#     -v "[config folder]/:/config/" \
+#     tessypowder/backblaze-personal-wine:latest
+```
