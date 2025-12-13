@@ -68,7 +68,7 @@ jobs:
 
       # Set up cache
       - name: Setup Docker build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
