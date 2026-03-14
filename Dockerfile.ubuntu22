@@ -1,3 +1,154 @@
+# ── Stage 1: Build a patched mountmgr.sys from Wine source ──────────────────
+# We patch two Wine DLLs from source:
+#   1. dlls/mountmgr.sys/device.c – return synthetic disk extents for
+#      IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS so Backblaze >= 9.2.2.877 treats
+#      Wine-mounted drives as connected physical disks.
+#   2. dlls/kernelbase/version.c – disable the GetVersionEx compatibility lie
+#      so every process (including binaries the installer extracts at runtime)
+#      receives the true OS version (10.0) rather than the 6.2 stub.
+#
+# Everything else comes from the WineHQ package.
+#
+# This stage must always run as linux/amd64 even on ARM hosts (Apple Silicon).
+# Wine's configure ties the PE target architecture to the build host: on aarch64
+# it would look for aarch64-w64-mingw32-gcc instead of x86_64-w64-mingw32-gcc.
+# Docker uses QEMU emulation on ARM; the layer is cached after the first build.
+# The final stage is always linux/amd64 (Wine requires x86_64 Linux).
+# ─────────────────────────────────────────────────────────────────────────────
+FROM --platform=linux/amd64 ubuntu:22.04 AS wine-builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+        build-essential \
+        gcc-multilib \
+        g++-multilib \
+        flex \
+        bison \
+        gcc-mingw-w64-x86-64 \
+        g++-mingw-w64-x86-64 \
+        gcc-mingw-w64-i686 \
+        g++-mingw-w64-i686 \
+        mingw-w64-tools \
+        wget \
+        xz-utils \
+        ca-certificates \
+        pkg-config \
+        libdbus-1-dev \
+        python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Fail fast if the cross-compilers aren't available before wasting time on
+# downloading and configuring the Wine source.
+RUN x86_64-w64-mingw32-gcc --version && i686-w64-mingw32-gcc --version
+
+# Download Wine 11.0 source (matches winehq-stable=11.0* in the final stage).
+# The tarball is ~30 MB; mountmgr.sys and kernelbase.dll are compiled from it.
+# Total build time is roughly 5-10 minutes after the first cached Docker layer.
+RUN wget -q https://dl.winehq.org/wine/source/11.0/wine-11.0.tar.xz \
+    && tar xJf wine-11.0.tar.xz \
+    && rm wine-11.0.tar.xz
+
+WORKDIR /wine-11.0
+
+# Minimal configure – skip every optional feature that would pull in extra
+# -dev packages we don't have.  We only need the PE cross-compilation
+# infrastructure to build one driver DLL.
+#
+# D-Bus (libdbus-1-dev) must be present and NOT --without-dbus.
+# dlls/mountmgr.sys/Makefile.in sets UNIXLIB = mountmgr.so with
+# UNIX_CFLAGS = $(DBUS_CFLAGS).  When D-Bus is absent, Wine's makedep
+# excludes the entire module – PE rules and all – so nothing gets compiled.
+#
+# NOTE: do NOT pipe through 'tail' or any other command here.  Doing so
+# changes the exit code to that of the pipe consumer (always 0), which
+# silently masks configure failures and lets the build continue without
+# generating a Makefile, causing make to produce nothing.
+RUN ./configure \
+        --enable-win64 \
+        --disable-tests \
+        --without-x \
+        --without-opengl \
+        --without-vulkan \
+        --without-gstreamer \
+        --without-gnutls \
+        --without-cups \
+        --without-pulse \
+        --without-alsa \
+        --without-freetype \
+        --without-krb5 \
+        --without-pcap \
+        --without-usb \
+        --without-sane \
+        --without-v4l2 \
+        --without-capi \
+        --without-osmesa
+
+# Apply patches before building.
+# (Placed after configure so patch changes don't bust the configure cache.)
+# Uses Python scripts instead of unified-diff patches to avoid line-number
+# sensitivity across Wine versions.
+COPY patches/patch_mountmgr_disk_extents.py /patch_mountmgr_disk_extents.py
+RUN python3 /patch_mountmgr_disk_extents.py
+
+# Disable the GetVersionEx compatibility lie in kernelbase so every Wine process
+# (including binaries the Backblaze installer extracts at runtime from its embedded
+# cabinet) receives the true OS version (10.0) rather than the 6.2 stub.
+# Uses a Python script rather than a patch file to avoid line-number sensitivity.
+COPY patches/disable_version_lie.py /disable_version_lie.py
+RUN python3 /disable_version_lie.py
+
+# Build mountmgr.sys PE, then verify the PE file was actually produced.
+# In Wine 11.0 the PE outputs go into x86_64-windows/ subdirectories, not
+# directly in the module directory (dlls/mountmgr.sys/mountmgr.sys does not exist).
+RUN make dlls/mountmgr.sys/x86_64-windows/mountmgr.sys \
+    && echo "--- built files in dlls/mountmgr.sys/ ---" \
+    && find dlls/mountmgr.sys -type f \
+    && test -f dlls/mountmgr.sys/x86_64-windows/mountmgr.sys \
+    || { echo "ERROR: mountmgr.sys PE file not produced – see file list above"; exit 1; }
+
+# Build kernelbase.dll PE for x86_64 (the patched GetVersionEx lives here).
+RUN make dlls/kernelbase/x86_64-windows/kernelbase.dll \
+    && echo "--- built x86_64 kernelbase.dll ---" \
+    && test -f dlls/kernelbase/x86_64-windows/kernelbase.dll \
+    || { echo "ERROR: x86_64 kernelbase.dll not produced"; exit 1; }
+
+# Build kernelbase.dll for i386 (32-bit processes under Wine WoW64 also hit the
+# GetVersionEx compat lie; they must use i386-windows/kernelbase.dll).
+#
+# Wine's --enable-win64 configure only sets up x86_64-windows PE build rules.
+# To get i386-windows rules we need a SEPARATE out-of-tree configure pass that
+# uses --with-wine64 to borrow tools from the already-configured 64-bit tree.
+# gcc-multilib provides gcc -m32 which satisfies configure's native-CC checks.
+RUN mkdir /wine32
+WORKDIR /wine32
+RUN /wine-11.0/configure \
+        --with-wine64=/wine-11.0 \
+        --disable-tests \
+        --without-x \
+        --without-opengl \
+        --without-vulkan \
+        --without-gstreamer \
+        --without-gnutls \
+        --without-cups \
+        --without-pulse \
+        --without-alsa \
+        --without-freetype \
+        --without-krb5 \
+        --without-pcap \
+        --without-usb \
+        --without-sane \
+        --without-v4l2 \
+        --without-capi \
+        --without-osmesa \
+        --without-dbus
+
+RUN make dlls/kernelbase/i386-windows/kernelbase.dll \
+    && echo "--- built i386 kernelbase.dll ---" \
+    && test -f dlls/kernelbase/i386-windows/kernelbase.dll \
+    || { echo "ERROR: i386 kernelbase.dll not produced"; exit 1; }
+
+# ── Stage 2: The actual container image ──────────────────────────────────────
 FROM jlesage/baseimage-gui:ubuntu-22.04-v4@sha256:51c11dd8405ec18c65b85808ede782e548d8233705c7fb3a62d0dcf0abca55c3
 
 ENV WINEPREFIX /config/wine/
@@ -16,15 +167,35 @@ ENV DISPLAY=:0
 RUN apt-get update && \
     apt-get install -y curl software-properties-common gnupg2 winbind xvfb 7zip cabextract && \
     dpkg --add-architecture i386 && \
-    curl -O https://dl.winehq.org/wine-builds/winehq.key && \
-    apt-key add winehq.key && \
-    add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ jammy main' && \
-    apt-get install -y winehq-stable=10.0* && \
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq.gpg && \
+    echo "deb [arch=amd64,i386 signed-by=/etc/apt/keyrings/winehq.gpg] https://dl.winehq.org/wine-builds/ubuntu/ jammy main" \
+        > /etc/apt/sources.list.d/winehq.list && \
+    apt-get update && \
+    apt-get install -y winehq-stable && \
     apt-get install -y winetricks && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y locales && \
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=en_US.UTF-8
+
+# Replace the stub mountmgr.sys with our patched build that returns valid
+# disk extents.  This must come after Wine is installed so the target
+# directory already exists.
+# Wine 11.0 (winehq-stable) installs to /opt/wine-stable – NOT the distro path.
+COPY --from=wine-builder \
+    /wine-11.0/dlls/mountmgr.sys/x86_64-windows/mountmgr.sys \
+    /opt/wine-stable/lib/wine/x86_64-windows/mountmgr.sys
+
+# Replace kernelbase.dll (both architectures) with our patched build that
+# disables the GetVersionEx compatibility lie.  Backblaze's installer and its
+# helper processes may run as either 32-bit or 64-bit; both are covered here.
+COPY --from=wine-builder \
+    /wine-11.0/dlls/kernelbase/x86_64-windows/kernelbase.dll \
+    /opt/wine-stable/lib/wine/x86_64-windows/kernelbase.dll
+COPY --from=wine-builder \
+    /wine32/dlls/kernelbase/i386-windows/kernelbase.dll \
+    /opt/wine-stable/lib/wine/i386-windows/kernelbase.dll
 
 EXPOSE 5900
 
