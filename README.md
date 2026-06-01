@@ -1,7 +1,7 @@
 ![Github License](https://img.shields.io/github/license/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
 ![Docker Pulls](https://img.shields.io/docker/pulls/tessypowder/backblaze-personal-wine?style=flat-square)
 ![Docker Image Size](https://img.shields.io/docker/image-size/tessypowder/backblaze-personal-wine/latest?style=flat-square)
-![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
+![Maintenance](https://img.shields.io/maintenance/yes/2026?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
 ![GitHub contributors](https://img.shields.io/github/contributors/JonathanTreffler/backblaze-personal-wine-container?style=flat-square)
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
@@ -72,14 +72,13 @@ Here are the main components of this image:
 
 | Tag | Description |
 |-----|-------------|
-| latest | Latest stable version of the image based on ubuntu 22 |
-| ubuntu22 | Latest stable version of the image based on ubuntu 22 |
-| ubuntu20 | Latest stable version of the image based on ubuntu 20 **(Not recommended anymore)** |
-| ubuntu18 | Latest stable version of the image based on ubuntu 18 **(End of Life - unmaintained)** |
-| v1.x | Versioned stable releases based on ubuntu 22 |
-| main | Automatic build of the main branch (may be unstable) based on ubuntu 22 |
+| latest | Latest stable version of the image based on ubuntu 22.04 |
+| ubuntu22 | Latest stable version of the image based on ubuntu 22.04 |
+| ubuntu24 | Latest stable version of the image based on ubuntu 24.04 |
+| v1.x | Versioned stable releases based on ubuntu 22.04 |
+| main | Automatic build of the main branch (may be unstable) based on ubuntu 22.04 |
 
-There are no versioned ubuntu20 or ubuntu18 builds.
+The previous `ubuntu18` and `ubuntu20` images are end-of-life and are no longer built.
 
 ### Platforms
 
@@ -102,9 +101,10 @@ Environment variables can be set by adding one or more arguments `-e "<VAR>=<VAL
 
 | Variable       | Description                                  | Default |
 |----------------|----------------------------------------------|---------|
-|`DISABLE_VIRTUAL_DESKTOP` | Disables Wine's Virtual Desktop Mode | false |
-|`DISABLE_AUTOUPDATE` | Disables the auto-update of the backblaze client to the latest known-good version at the time of the docker version release | true |
-|`FORCE_LATEST_UPDATE`| Forces the auto updater to download the newest version of the backblaze client from the backblaze servers instead of a known-good version from the Internet Archive | true |
+|`DISABLE_VIRTUAL_DESKTOP` | Disables Wine's Virtual Desktop Mode | true |
+|`DISABLE_AUTOUPDATE` | When `true`, the container never updates the installed Backblaze client (it stays on the version that was current when it was first installed). When `false`, the container checks Backblaze's client-version feed on start and reinstalls the latest release if a newer one is available. | true |
+|`FORCE_LATEST_UPDATE`| **Deprecated / no-op.** Backblaze no longer publishes old installer versions and the Internet Archive no longer mirrors them, so there is no "pinned" version to choose anymore — the container always installs the current release from backblaze.com. Kept only for backwards compatibility. | (ignored) |
+|`ENABLE_NETWORK_MOUNT_MASKING`| When `true`, network-backed mounts (NFS/SMB/CIFS) are overlaid with a local overlayfs so Backblaze treats them as fixed disks and backs them up (Backblaze otherwise refuses network drives). **Requires** the container to run with `cap_add: SYS_ADMIN` and `security_opt: apparmor:unconfined`. Leave unset for local mounts. See [Volumes → Option 2 (network shares)](#volumes). | (unset) |
 |`UMASK`| Mask that controls how file permissions are set for newly created files. The value of the mask is in octal notation.  By default, this variable is not set and the default umask of `022` is used, meaning that newly created files are readable by everyone, but only writable by the owner. See the following online umask calculator: http://wintelguy.com/umask-calc.pl | (unset) |
 |`TZ`| [TimeZone] of the container.  Timezone can also be set by mapping `/etc/localtime` between the host and the container. | `Etc/UTC` |
 |`APP_NICENESS`| Priority at which the application should run.  A niceness value of -20 is the highest priority and 19 is the lowest priority.  By default, niceness is not set, meaning that the default niceness of 0 is used.  **NOTE**: A negative niceness (priority increase) requires additional permissions.  In this case, the container should be run with the docker option `--cap-add=SYS_NICE`. | (unset) |
@@ -139,12 +139,68 @@ container cannot be changed, but you are free to use any port on the host side.
 
 ## Volumes
 
-A minimum of 2 volumes need to be mounted to the container
+The container always needs the config volume, plus at least one drive to back up:
 
-  * /config - This is where Wine and Backblaze will be installed
-  * Backup drives - these are the locations you wish to backup, any volume that is mounted as /drive_**driveletter** (from d up to z) will be mounted automatically for use in Backblaze with their equivalent letter, for example /drive_d will be mounted as D:
+  * **`/config`** - where Wine and the Backblaze client are installed and keep their state. Mount a persistent volume or host directory here.
+  * **One or more backup drives** - the data you want to back up. How you provide them depends on whether the source is a **local folder** or a **network share** - see the two options below.
 
-You can mount drives with different paths, but these will need to be mounted manually within wine using the following method
+> **Which option do I need?**
+> - Backing up folders on the Docker host's own disks → **Option 1** (nothing special required).
+> - Backing up an NFS/SMB share from a NAS (TrueNAS, Synology, Unraid user share, …) → **Option 2** (a few extra lines required).
+
+### Option 1 - Local folders (default)
+
+Mount any local host directory as `/drive_<letter>` (anything from `d` to `z`). It is exposed to Backblaze automatically as the matching drive letter - `/drive_d` → `D:`, `/drive_e` → `E:`, and so on. Nothing else is required.
+
+```yaml
+services:
+  backblaze:
+    image: tessypowder/backblaze-personal-wine:latest
+    volumes:
+      - ./config:/config
+      - /srv/photos:/drive_d
+      - /srv/documents:/drive_e
+    ports:
+      - "5800:5800"
+```
+
+After the first start, open the web UI and tick the drive(s) under **Settings → "Select Hard Drives to Backup"**.
+
+### Option 2 - Network shares (NAS / NFS / SMB / CIFS)
+
+Backblaze deliberately refuses to back up network drives, and Wine reports any NFS/SMB/CIFS mount as a network drive - so a plain network mount shows up but is **skipped** (the long-standing issues [#43](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/43) / [#67](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/67)).
+
+When `ENABLE_NETWORK_MOUNT_MASKING=true`, the container works around this by transparently overlaying the network mount with a local `overlayfs`, so Wine - and therefore Backblaze - sees a normal **fixed disk** and backs it up.
+
+Mount the share as `/drive_<letter>` just like a local folder, **and** add the three highlighted lines:
+
+```yaml
+services:
+  backblaze:
+    image: tessypowder/backblaze-personal-wine:latest
+    volumes:
+      - ./config:/config
+      - /mnt/nas/media:/drive_d           # an NFS/SMB share mounted on the host
+    ports:
+      - "5800:5800"
+    environment:
+      - ENABLE_NETWORK_MOUNT_MASKING=true # <-- enables the workaround
+    cap_add:
+      - SYS_ADMIN                         # <-- required to perform the overlay mount
+    security_opt:
+      - apparmor:unconfined               # <-- required to perform the overlay mount
+```
+
+Important:
+
+  * **Only network shares need this.** If you back up local folders (Option 1), do **not** add these privileges.
+  * `SYS_ADMIN` + `apparmor:unconfined` are required so the container is allowed to run the overlay `mount(2)`. They widen the container's privileges - add them only when you actually back up a network share.
+  * Your share is only ever **read**. Backblaze's own bookkeeping (the `.bzvol` marker) is written into `/config`, never onto the share.
+  * If the feature is left off (or the privileges are missing), the container still starts normally and local drives keep working - the network share is just skipped.
+
+### Mounting a drive at a custom path (advanced)
+
+If your data is mounted somewhere other than `/drive_<letter>`, you can link it into Wine manually instead:
 
 1. Add your storage path as a wine drive, so Backblaze can access it
 
@@ -292,9 +348,7 @@ container.
     ````
 
 1. Open the Web Interface (on the port you specified in the docker run command, in this example 8080):
-2. You may see wine being updated, this will take a couple of minutes
-   
-   ![image](https://github.com/xela1/backblaze-personal-wine-container/assets/357319/4f401b31-8d1d-40fe-85a3-ec4637c23bf5)
+1. On the very first start the container downloads and installs the Backblaze client. The Wine environment with .NET is already prepared inside the image, so this only takes a couple of minutes. The screen may be black/empty while this runs.
 
 1. The UI of the first step of the Backblaze installer is broken on wine, but it doesn't matter, just insert the email to your backblaze account into the input field. (If the UI does not load for you, look in the top left corner for a white pixel. Move your mouse pointer over that pixel, the pixel will go away, and the UI should load.)
 
@@ -415,7 +469,7 @@ The `--init` flag installs a tiny process that can actually do a few init things
     ````shell
     docker exec --user app backblaze_personal_backup winecfg
     ````
-5. We are using Wine's virtual desktop mode as default and are using a default screen resoluzion of 900x700 pixels. It's larger than the Backblaze UI window itself to make room for the Backblaze restore app. You can always modify the resolution as you like with DISPLAY_WIDTH and DISPLAY_HEIGHT:
+5. Wine's virtual desktop mode is **disabled by default** (`DISABLE_VIRTUAL_DESKTOP=true`); the Backblaze window is shown directly. If you enable it (`DISABLE_VIRTUAL_DESKTOP=false`), a virtual desktop of 900x700 pixels is used (larger than the Backblaze UI window to leave room for the restore app). You can change the size with DISPLAY_WIDTH and DISPLAY_HEIGHT:
     ````shell
     docker run ... -e "DISPLAY_WIDTH=1280" -e "DISPLAY_HEIGHT=800" ...
     ````
@@ -425,7 +479,7 @@ This was originally developed by @Atemu (https://github.com/Atemu/backblaze-pers
 
 The Backblaze name, logo and application is the property of Backblaze, Inc.
 
-This docker does not redistribute the Backblaze application. It gets downloaded from the official Backblaze Servers or Internet Archive during the install process.
+This docker does not redistribute the Backblaze application. It gets downloaded from the official Backblaze Servers during the install process.
 
 This docker image is based on @jlesage 's excellent [base image](https://github.com/jlesage/docker-baseimage-gui).
 

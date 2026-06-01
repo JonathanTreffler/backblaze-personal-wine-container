@@ -5,8 +5,16 @@
   ],
   "packageRules": [
     {
+      "description": "Open PRs for everything, but never auto-merge by default.",
       "matchPackageNames": [
-        "jlesage/baseimage-gui",
+        "*"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Only auto-merge jlesage/baseimage-gui digest bumps.",
+      "matchPackageNames": [
+        "jlesage/baseimage-gui"
       ],
       "matchUpdateTypes": [
         "digest"
