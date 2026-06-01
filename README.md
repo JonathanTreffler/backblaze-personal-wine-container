@@ -152,14 +152,16 @@ The container always needs the config volume, plus at least one drive to back up
 
 Mount any local host directory as `/drive_<letter>` (anything from `d` to `z`). It is exposed to Backblaze automatically as the matching drive letter - `/drive_d` → `D:`, `/drive_e` → `E:`, and so on. Nothing else is required.
 
+Local folders must be mounted **read-write** (the default): Backblaze writes a small `.bzvol` marker into the root of every drive it backs up, so a read-only mount will not work here.
+
 ```yaml
 services:
   backblaze:
     image: tessypowder/backblaze-personal-wine:latest
     volumes:
       - ./config:/config
-      - /srv/photos:/drive_d
-      - /srv/documents:/drive_e
+      - /srv/photos:/drive_d        # local folder, read-write
+      - /srv/documents:/drive_e     # local folder, read-write
     ports:
       - "5800:5800"
 ```
@@ -180,7 +182,7 @@ services:
     image: tessypowder/backblaze-personal-wine:latest
     volumes:
       - ./config:/config
-      - /mnt/nas/media:/drive_d           # an NFS/SMB share mounted on the host
+      - /mnt/nas/media:/drive_d:ro        # NFS/SMB share, mounted read-only
     ports:
       - "5800:5800"
     environment:
@@ -195,7 +197,7 @@ Important:
 
   * **Only network shares need this.** If you back up local folders (Option 1), do **not** add these privileges.
   * `SYS_ADMIN` + `apparmor:unconfined` are required so the container is allowed to run the overlay `mount(2)`. They widen the container's privileges - add them only when you actually back up a network share.
-  * Your share is only ever **read**. Backblaze's own bookkeeping (the `.bzvol` marker) is written into `/config`, never onto the share.
+  * **Mount network shares read-only (`:ro`)** - recommended. The share is only ever read, and Backblaze's own bookkeeping (the `.bzvol` marker) is written into `/config`, never onto the share. Mounting read-only guarantees Backblaze can never modify or delete your NAS data.
   * If the feature is left off (or the privileges are missing), the container still starts normally and local drives keep working - the network share is just skipped.
 
 ### Mounting a drive at a custom path (advanced)
