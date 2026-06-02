@@ -48,6 +48,22 @@ if [ ! -f "${WINEPREFIX}system.reg" ]; then
     fi
 fi
 
+# Upgrade fix: installs from older image versions kept their existing prefix (the
+# seed above only runs for a fresh /config). Those already have .NET 4.8 but lack
+# the rundll32 "supportedOS" manifest, so Backblaze's current installer still
+# aborts with "unsupported OS" when it self-updates. Copy the manifest in from the
+# template (idempotent; the matching PreferExternalManifest key is set below).
+if [ -f "${wine_template}/drive_c/windows/system32/rundll32.exe.manifest" ]; then
+    for d in system32 syswow64; do
+        dst="${WINEPREFIX}drive_c/windows/${d}/rundll32.exe.manifest"
+        if [ ! -f "$dst" ]; then
+            mkdir -p "${WINEPREFIX}drive_c/windows/${d}"
+            cp "${wine_template}/drive_c/windows/system32/rundll32.exe.manifest" "$dst" 2>/dev/null \
+                && log_message "WINE: installed rundll32 supportedOS manifest into ${d} (upgrade fix)"
+        fi
+    done
+fi
+
 # Resolve the host path a /drive_<letter> should link to. Wine reports NFS/SMB
 # mounts as network drives, which Backblaze refuses to back up (#43/#67). Opt-in
 # ENABLE_NETWORK_MOUNT_MASKING overlays such a mount with a kernel overlayfs so wine
@@ -101,6 +117,10 @@ mkdir -p "$(dirname "$drives_reg")"
             echo "\"${x}:\"=\"hd\""
         fi
     done
+    # Make rundll32 honour the external supportedOS manifest (see upgrade fix above).
+    echo ""
+    echo "[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\SideBySide]"
+    echo "\"PreferExternalManifest\"=dword:00000001"
 } > "$drives_reg"
 "$WINE" regedit "$drives_reg" >/dev/null 2>&1 # first wine call: registers the drives as volumes
 
