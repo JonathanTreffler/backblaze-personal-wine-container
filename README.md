@@ -43,6 +43,50 @@ This docker should just work for most people. But if you for example have a comp
 
 Still please be attentive during the install process: The docker by design has read/write access to all the data you are trying to back up and if you make a grave mistake you could delete stuff.
 
+## Upload Speed / Patched wineserver
+
+If you have seen uploads crawl at roughly **0.7 Mbit/s per connection** since Backblaze client
+9.0.1 — no matter how many backup threads, how fast your line is, or how beefy your NAS is — that
+was a **Wine bug, not a Backblaze bug**. It is fixed in this image; you do not need to downgrade the
+Backblaze client any more.
+
+<details>
+<summary>What was actually wrong</summary>
+
+Backblaze's uploader (`bztransmit`) drives each connection like curl does: send a burst, then poll
+the socket to ask whether it is still writable, and if the answer is "no", wait on the socket's
+`WSAEventSelect` **FD_WRITE** event with a ~1 second timeout.
+
+`FD_WRITE` is a *latched* event on Windows: once you have been told the socket is writable, you are
+not told again until a `send()` fails with `WSAEWOULDBLOCK`. Wine models that latch with
+`reported_events`, and `sock_get_poll_events()` computes its poll mask as
+`sock->mask & ~sock->reported_events` — so while the latch is set, **the server stops asking the
+kernel about `POLLOUT` at all**. Wine only cleared the latch when an actual `send()` failed.
+
+An app that instead learns "not writable" from a *poll* therefore ended up waiting on an event that
+could never be signalled: the socket drained a few milliseconds later, but nothing was watching for
+writability any more. Every burst blocked for the app's full 1 second timeout, which caps a
+connection at `burst ÷ 1s` ≈ 0.7 Mbit/s. Linux makes this easy to hit because it withholds `POLLOUT`
+until the send queue drains well below `SO_SNDBUF` (and the queue can even sit *above* `SO_SNDBUF`
+while data is in flight), whereas Windows reports a stream socket writable whenever `send()` would
+accept any data at all. On real Windows the poll simply answers "yes, writable" and the app never
+waits — which is why this only ever affected Wine users.
+
+The fix (`patches/`) re-arms `FD_WRITE` when the server reports a stream socket as not writable,
+since that is the same notification as a `send()` failing with `WSAEWOULDBLOCK`. The image rebuilds
+**only** the `wineserver` binary from the matching WineHQ source; everything else still comes from
+the WineHQ package.
+
+Measured with the real Backblaze client: per-connection throughput went from ~0.7 Mbit/s to
+**3.5–13.8 Mbit/s**. Aggregate throughput scales with your thread count as it always did, but
+*single-connection* operations — most importantly the `bz_comb` state POST, which has a hard
+600 second timeout — are no longer starved. Oversized `bz_done` state files were previously able to
+wedge the client permanently for exactly this reason.
+
+Reported upstream as [wine bug 59893](https://bugs.winehq.org/show_bug.cgi?id=59893). Once the fix
+ships in WineHQ's stable packages, the builder stage and `patches/` can simply be deleted.
+</details>
+
 ## Docker Images
 ### Content
 Here are the main components of this image:
