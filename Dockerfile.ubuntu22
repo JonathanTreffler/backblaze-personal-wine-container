@@ -3,34 +3,27 @@
 # long-standing "slow since Backblaze 9.0.1" issue, #130 / #186). See
 # patches/0001-server-rearm-FD_WRITE-when-reporting-a-socket-not-wri.patch and
 # https://bugs.winehq.org/show_bug.cgi?id=59893. Only the wineserver binary is
-# rebuilt; the rest of Wine still comes from the WineHQ package. WINE_VERSION must
-# match the winehq-stable version installed below - the wineserver protocol is
-# version-locked, and a mismatch makes Wine refuse to start.
+# rebuilt, from the WineHQ *source* package for the exact same suite and package
+# revision as the winehq-stable binaries installed below - the wineserver
+# protocol is version-locked, so the two must come from one source revision.
 FROM ubuntu:22.04 AS wineserver-builder
 ARG DEBIAN_FRONTEND=noninteractive
-ARG WINE_VERSION=11.0
+ARG WINE_PACKAGE_VERSION=11.0.0.0~jammy-1
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        build-essential flex bison ca-certificates wget xz-utils patch && \
+        build-essential dpkg-dev flex bison ca-certificates curl patch xz-utils && \
     rm -rf /var/lib/apt/lists/*
 COPY patches/ /patches/
-RUN set -eux; \
-    wget -q "https://dl.winehq.org/wine/source/${WINE_VERSION%.*}.x/wine-${WINE_VERSION}.tar.xz" \
-      || wget -q "https://dl.winehq.org/wine/source/${WINE_VERSION}/wine-${WINE_VERSION}.tar.xz"; \
-    tar -xf "wine-${WINE_VERSION}.tar.xz"; \
-    cd "wine-${WINE_VERSION}"; \
-    for p in /patches/*.patch; do echo "applying $p"; patch -p1 < "$p"; done; \
-    ./configure --enable-win64 --without-x --without-freetype --without-mingw \
-        --disable-tests --without-alsa --without-pulse --without-oss --without-cups \
-        --without-fontconfig --without-gnutls --without-gstreamer --without-opengl \
-        --without-sdl --without-udev --without-usb --without-v4l2 --without-wayland \
-        --without-pcap --without-netapi --without-dbus --without-inotify >/dev/null; \
-    make -j"$(nproc)" server/wineserver; \
-    strip server/wineserver; \
-    install -Dm755 server/wineserver /out/wineserver
+COPY scripts/build-wineserver.sh /usr/local/bin/build-wineserver.sh
+RUN chmod 755 /usr/local/bin/build-wineserver.sh && \
+    /usr/local/bin/build-wineserver.sh \
+        jammy "$WINE_PACKAGE_VERSION" \
+        "/patches/0001-server-rearm-FD_WRITE-when-reporting-a-socket-not-wri.patch" \
+        /out/wineserver
 
 FROM jlesage/baseimage-gui:ubuntu-22.04-v4.11.3
 ARG DEBIAN_FRONTEND=noninteractive
+ARG WINE_PACKAGE_VERSION=11.0.0.0~jammy-1
 
 ENV WINEPREFIX=/config/wine/
 ENV LANG=en_US.UTF-8
@@ -55,11 +48,39 @@ RUN dpkg --add-architecture i386 && \
     curl -fsSL https://dl.winehq.org/wine-builds/winehq.key -o /etc/apt/keyrings/winehq-archive.key && \
     curl -fsSL https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources -o /etc/apt/sources.list.d/winehq-jammy.sources && \
     apt-get update && \
-    apt-get install -y --install-recommends winehq-stable && \
+    apt-get install -y --install-recommends "winehq-stable=$WINE_PACKAGE_VERSION" && \
     curl -fsSL https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -o /usr/local/bin/winetricks && \
     chmod +x /usr/local/bin/winetricks && \
     sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Swap in the patched wineserver (see the builder stage at the top of this file)
+# before the Wine prefix below is prepared, so the wineboot / winetricks /
+# wineserver -w steps exercise the patched server too.
+#
+# Both halves of Wine are pinned to WINE_PACKAGE_VERSION: the binaries via the
+# apt install above, the wineserver via the source package it was built from.
+# Verify that here and fail the build rather than ship an image whose Wine
+# binaries and wineserver came from different revisions.
+COPY --from=wineserver-builder /out/wineserver /opt/wine-stable/bin/wineserver.patched
+RUN set -eux; \
+    installed="$(dpkg-query -W -f='${Version}' winehq-stable)"; \
+    if [ "$installed" != "$WINE_PACKAGE_VERSION" ]; then \
+        echo "ERROR: winehq-stable is $installed but the patched wineserver was built" >&2; \
+        echo "       from the $WINE_PACKAGE_VERSION source package." >&2; \
+        exit 1; \
+    fi; \
+    packaged="$(/opt/wine-stable/bin/wineserver --version 2>&1)"; \
+    patched="$(/opt/wine-stable/bin/wineserver.patched --version 2>&1)"; \
+    if [ "$packaged" != "$patched" ]; then \
+        echo "ERROR: packaged wineserver reports '$packaged' but the patched one" >&2; \
+        echo "       reports '$patched'. The wineserver protocol is version-locked." >&2; \
+        exit 1; \
+    fi; \
+    mv /opt/wine-stable/bin/wineserver /opt/wine-stable/bin/wineserver.orig; \
+    mv /opt/wine-stable/bin/wineserver.patched /opt/wine-stable/bin/wineserver; \
+    chmod 755 /opt/wine-stable/bin/wineserver; \
+    /opt/wine-stable/bin/wineserver --version
 
 # Build a ready-to-use wine prefix at image build time so the user's first start
 # is fast (a quick copy instead of a multi-minute .NET install). The template has
@@ -79,24 +100,6 @@ RUN set -eux; \
     xvfb-run -a sh -c "wine reg add 'HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\SideBySide' /v PreferExternalManifest /t REG_DWORD /d 1 /f && wine reg add 'HKCU\\Software\\Wine\\WineDbg' /v ShowCrashDialog /t REG_DWORD /d 0 /f && wineserver -w"; \
     rm -f /defaults/rundll32.exe.manifest; \
     chown -R 1000:1000 /defaults
-
-# Swap in the patched wineserver (see the builder stage at the top of this file).
-# Verified against the packaged Wine: if WineHQ ships a different version than
-# WINE_VERSION, the build fails loudly here rather than shipping a broken image.
-ARG WINE_VERSION=11.0
-COPY --from=wineserver-builder /out/wineserver /opt/wine-stable/bin/wineserver.patched
-RUN set -eux; \
-    packaged="$(/opt/wine-stable/bin/wineserver --version 2>&1 | sed -n 's/^Wine \([0-9.]*\).*/\1/p')"; \
-    if [ "$packaged" != "$WINE_VERSION" ]; then \
-        echo "ERROR: winehq-stable is Wine $packaged but the patched wineserver was built" >&2; \
-        echo "       from Wine $WINE_VERSION. The wineserver protocol is version-locked." >&2; \
-        echo "       Rebuild with --build-arg WINE_VERSION=$packaged." >&2; \
-        exit 1; \
-    fi; \
-    mv /opt/wine-stable/bin/wineserver /opt/wine-stable/bin/wineserver.orig; \
-    mv /opt/wine-stable/bin/wineserver.patched /opt/wine-stable/bin/wineserver; \
-    chmod 755 /opt/wine-stable/bin/wineserver; \
-    /opt/wine-stable/bin/wineserver --version
 
 COPY rootfs/ /
 # Must be world-readable/executable: the baseimage runs the app as a non-root user

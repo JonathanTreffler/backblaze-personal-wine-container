@@ -6,21 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- **Slow uploads (~0.7 Mbit/s per connection) with Backblaze client 9.0.1 and newer** (#130, #186).
-  This was a Wine bug, not a Backblaze one, which is why downgrading the client "fixed" it.
-  Backblaze's uploader bursts data and then polls the socket for writability; when the poll says
-  "not writable" it waits on the socket's FD_WRITE event. Wine left `AFD_POLL_WRITE` latched in
-  `reported_events` in that path, so the server stopped watching for `POLLOUT` and the event could
-  never fire again — every burst ate the app's full ~1 second poll timeout, pinning each connection
-  at roughly `burst ÷ 1s` regardless of thread count, line speed or hardware.
-  The image now ships a `wineserver` patched to re-arm `FD_WRITE` when it reports a stream socket
-  as not writable (which is the same notification as a `send()` failing with `WSAEWOULDBLOCK`, and
-  Windows re-arms in that case). Measured with the real client: per-connection throughput went from
-  ~0.7 Mbit/s to 3.5–13.8 Mbit/s. Reported upstream as
-  [wine bug 59893](https://bugs.winehq.org/show_bug.cgi?id=59893); the patch lives in `patches/` and
-  should be dropped once the fix ships in WineHQ's stable packages.
-
 ## 1.11
 
 ### Changed
