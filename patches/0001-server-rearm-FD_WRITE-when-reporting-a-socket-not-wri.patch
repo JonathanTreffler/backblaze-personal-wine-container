@@ -1,0 +1,76 @@
+From: Backblaze-personal-wine-container contributors
+Subject: [PATCH] server: Re-arm FD_WRITE when reporting a stream socket not writable.
+
+Backblaze's uploader (bztransmit, client >= 9.0.1) drives each connection with a
+curl-style loop: burst data, then poll the socket for writability, and if the poll
+says "not writable" wait on the socket's WSAEventSelect FD_WRITE event with a ~1 s
+timeout.
+
+Under Wine that loop stalls for the full timeout on every iteration, pinning each
+connection at ~0.7 Mbit/s regardless of thread count, line speed or hardware. It is
+the cause of the long-standing "slow upload after 9.0.1" reports (container
+discussion #130 / issue #186) and of Wine bug 59893.
+
+Mechanism:
+
+  - The application has been told FD_WRITE once, so AFD_POLL_WRITE is latched in
+    sock->reported_events.
+  - sock_get_poll_events() computes its mask as "sock->mask & ~sock->reported_events",
+    so with AFD_POLL_WRITE latched it stops asking the kernel for POLLOUT at all.
+  - poll_socket() then reports "not writable" (Linux withholds POLLOUT until the
+    send queue drains well below SO_SNDBUF; it can even sit above SO_SNDBUF while
+    data is in flight).
+  - Windows re-arms FD_WRITE whenever a send fails with WSAEWOULDBLOCK, so the app
+    is woken as soon as the socket drains. Wine only clears the latch in
+    send_socket_completion_callback(), i.e. when an actual send fails. An app that
+    learns "not writable" from a *poll* rather than from a failed send therefore
+    waits on an event that can never be signalled: the socket drains milliseconds
+    later, but nothing is watching POLLOUT any more. It sleeps until its own poll
+    timeout expires.
+
+Telling an application that a socket is not writable is semantically the same
+notification as a send failing with WSAEWOULDBLOCK, so re-arm FD_WRITE in that case
+too. The socket is then re-selected for POLLOUT and the event fires as soon as it
+drains.
+
+Measured with the real Backblaze client (Wine 11.0, Ubuntu 22.04 container):
+per-connection throughput rises from ~0.7 Mbit/s to 3.5-13.8 Mbit/s. With a
+synthetic reproducer of the same I/O pattern against a 20 ms-RTT sink:
+0.93 Mbit/s -> 38 Mbit/s (and -> 74 Mbit/s when combined with the writability fix
+in wine MR !11272), with the ~1 s poll timeouts dropping to zero.
+
+Upstream: https://bugs.winehq.org/show_bug.cgi?id=59893
+See also: https://gitlab.winehq.org/wine/wine/-/merge_requests/11272 (complementary;
+this patch is effective with or without it).
+---
+--- a/server/sock.c
++++ b/server/sock.c
+@@ -3653,7 +3653,28 @@ static void poll_socket( struct sock *poll_sock, struct async *async, int exclus
+         pollfd.fd = get_unix_fd( sock->fd );
+         pollfd.events = poll_flags_from_afd( sock, mask );
+         if (pollfd.events >= 0 && poll( &pollfd, 1, 0 ) >= 0)
++        {
++            /* If we are about to report that the socket is not writable, that is
++             * equivalent to a send() failing with WSAEWOULDBLOCK, and Windows
++             * re-arms FD_WRITE in that case. Without re-arming, AFD_POLL_WRITE
++             * stays latched in reported_events, sock_get_poll_events() drops
++             * POLLOUT from the poll mask, and a socket that drains later never
++             * signals FD_WRITE - the application sleeps until its poll timeout.
++             * Do not re-arm while an FD_WRITE is still pending, as that event
++             * has not yet been consumed by the application. */
++            if ((mask & AFD_POLL_WRITE) &&
++                !(pollfd.revents & (POLLOUT | POLLERR | POLLHUP)) &&
++                sock->type == WS_SOCK_STREAM &&
++                sock->state == SOCK_CONNECTED &&
++                !sock->wr_shutdown &&
++                (sock->reported_events & AFD_POLL_WRITE) &&
++                !(sock->pending_events & AFD_POLL_WRITE))
++            {
++                sock->reported_events &= ~AFD_POLL_WRITE;
++                sock_reselect( sock );
++            }
+             sock_poll_event( sock->fd, pollfd.revents );
++        }
+
+         /* FIXME: do other error conditions deserve a similar treatment? */
+         if (sock->state != SOCK_CONNECTING && sock->errors[AFD_POLL_BIT_CONNECT_ERR] && (mask & AFD_POLL_CONNECT_ERR))
