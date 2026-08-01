@@ -7,7 +7,7 @@
 # revision as the winehq-stable binaries installed below - the wineserver
 # protocol is version-locked, so the two must come from one source revision.
 ARG WINE_PACKAGE_VERSION=11.0.0.0~noble-1
-FROM ubuntu:24.04 AS wineserver-builder
+FROM ubuntu:26.04 AS wineserver-builder
 ARG DEBIAN_FRONTEND=noninteractive
 ARG WINE_PACKAGE_VERSION
 RUN apt-get update && \
