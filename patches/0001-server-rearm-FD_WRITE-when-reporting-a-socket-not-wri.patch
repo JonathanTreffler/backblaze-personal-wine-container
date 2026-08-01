@@ -45,7 +45,7 @@ this patch is effective with or without it).
 ---
 --- a/server/sock.c
 +++ b/server/sock.c
-@@ -3653,7 +3653,23 @@ static void poll_socket( struct sock *poll_sock, struct async *async, int exclus
+@@ -3653,7 +3653,28 @@ static void poll_socket( struct sock *poll_sock, struct async *async, int exclus
          pollfd.fd = get_unix_fd( sock->fd );
          pollfd.events = poll_flags_from_afd( sock, mask );
          if (pollfd.events >= 0 && poll( &pollfd, 1, 0 ) >= 0)
@@ -55,12 +55,17 @@ this patch is effective with or without it).
 +             * re-arms FD_WRITE in that case. Without re-arming, AFD_POLL_WRITE
 +             * stays latched in reported_events, sock_get_poll_events() drops
 +             * POLLOUT from the poll mask, and a socket that drains later never
-+             * signals FD_WRITE - the application sleeps until its poll timeout. */
-+            if ((mask & AFD_POLL_WRITE) && !(pollfd.revents & (POLLOUT | POLLERR | POLLHUP)) &&
-+                sock->type == WS_SOCK_STREAM && sock->state == SOCK_CONNECTED && !sock->wr_shutdown &&
-+                (sock->reported_events & AFD_POLL_WRITE))
++             * signals FD_WRITE - the application sleeps until its poll timeout.
++             * Do not re-arm while an FD_WRITE is still pending, as that event
++             * has not yet been consumed by the application. */
++            if ((mask & AFD_POLL_WRITE) &&
++                !(pollfd.revents & (POLLOUT | POLLERR | POLLHUP)) &&
++                sock->type == WS_SOCK_STREAM &&
++                sock->state == SOCK_CONNECTED &&
++                !sock->wr_shutdown &&
++                (sock->reported_events & AFD_POLL_WRITE) &&
++                !(sock->pending_events & AFD_POLL_WRITE))
 +            {
-+                sock->pending_events &= ~AFD_POLL_WRITE;
 +                sock->reported_events &= ~AFD_POLL_WRITE;
 +                sock_reselect( sock );
 +            }

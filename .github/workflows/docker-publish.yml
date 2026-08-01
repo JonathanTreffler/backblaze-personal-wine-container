@@ -17,7 +17,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: ${{ secrets.DOCKERHUB_USER }}/backblaze-personal-wine
+  IMAGE_NAME: ${{ github.event_name == 'pull_request' && 'local/backblaze-personal-wine' || format('{0}/backblaze-personal-wine', secrets.DOCKERHUB_USER) }}
 
 jobs:
   build:
