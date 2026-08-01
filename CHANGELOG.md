@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fix the ~0.7 Mbit/s per-connection upload slowdown affecting Backblaze client 9.0.1 and later under Wine ([#130](https://github.com/JonathanTreffler/backblaze-personal-wine-container/discussions/130), [#186](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/186))
+
 ## 1.11
 
 ### Changed

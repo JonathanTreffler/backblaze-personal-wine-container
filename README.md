@@ -386,6 +386,14 @@ container.
 
 ## Troubleshooting
 
+- Upload speed is limited to about 0.7 Mbit/s per connection
+
+  - **Explanation**: Backblaze client 9.0.1 and later can hit a Wine socket-notification issue that makes each upload connection wait for a timeout after sending a block of data.
+
+  - **Solution**: Update to a current container image. The image includes a patched `wineserver` built from the matching pinned WineHQ source package. The issue has been reported upstream as [Wine bug 59893](https://bugs.winehq.org/show_bug.cgi?id=59893).
+
+  - **More information**: [Discussion #130](https://github.com/JonathanTreffler/backblaze-personal-wine-container/discussions/130) and [issue #186](https://github.com/JonathanTreffler/backblaze-personal-wine-container/issues/186)
+
 - The Backblaze Installer says it recognized a server operating system
 
   ![Bildschirmfoto von 2022-01-16 14-41-04](https://user-images.githubusercontent.com/28999431/149662713-b7b27862-59b6-432a-a3c3-327f939a7292.png)
