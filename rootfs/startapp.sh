@@ -147,7 +147,13 @@ handle_error() {
 fetch_and_install() {
     cd "$install_exe_path" || handle_error "INSTALLER: can't navigate to $install_exe_path"
     log_message "INSTALLER: Downloading latest Backblaze installer from $installer_url"
-    curl -L "$installer_url" --output "install_backblaze.exe" || handle_error "INSTALLER: error downloading from $installer_url"
+    # -f so an HTTP error fails here instead of saving the error page as the .exe.
+    curl -fL --retry 3 --retry-delay 2 "$installer_url" --output "install_backblaze.exe" || handle_error "INSTALLER: error downloading from $installer_url"
+    # An error or captive-portal page can still arrive as a 200, which -f won't
+    # catch. Windows executables start with "MZ"; anything else isn't one.
+    if [ "$(head -c 2 install_backblaze.exe 2>/dev/null)" != "MZ" ]; then
+        handle_error "INSTALLER: $installer_url did not return a Windows executable"
+    fi
     log_message "INSTALLER: Starting install_backblaze.exe (sign in via the web GUI to finish the install)"
     WINEARCH="$WINEARCH" WINEPREFIX="$WINEPREFIX" "$WINE" "install_backblaze.exe" || handle_error "INSTALLER: Failed to install Backblaze"
 }
