@@ -45,8 +45,10 @@ ENV DISPLAY=:0
 # components and no i386 repository is needed. A pinned winetricks revision is
 # fetched upstream instead of from apt, since the Ubuntu package depends on the
 # distro's own wine and would conflict with WineHQ. cabextract + 7zip are needed
-# by winetricks to install .NET 4.8.
-RUN apt-get update && \
+# by winetricks to install .NET 4.8. The base image links /var/log to
+# /config/log, which must exist before systemd's postinst creates its journal.
+RUN mkdir -p /config/log && \
+    apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl xvfb locales cabextract 7zip && \
     install -dm755 /etc/apt/keyrings && \
     curl -fsSL https://dl.winehq.org/wine-builds/winehq.key -o /etc/apt/keyrings/winehq-archive.asc && \
