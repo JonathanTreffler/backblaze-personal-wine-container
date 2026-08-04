@@ -75,7 +75,8 @@ Here are the main components of this image:
 | latest | Latest stable version of the image based on ubuntu 22.04 |
 | ubuntu22 | Latest stable version of the image based on ubuntu 22.04 |
 | ubuntu24 | Latest stable version of the image based on ubuntu 24.04 |
-| v1.x | Versioned stable releases based on ubuntu 22.04 |
+| ubuntu26 | Latest stable version of the image based on ubuntu 26.04 |
+| vX.Y | Versioned stable releases based on ubuntu 22.04 |
 | main | Automatic build of the main branch (may be unstable) based on ubuntu 22.04 |
 
 The previous `ubuntu18` and `ubuntu20` images are end-of-life and are no longer built.

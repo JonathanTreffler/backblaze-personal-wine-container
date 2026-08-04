@@ -25,6 +25,8 @@ RUN chmod 755 /usr/local/bin/build-wineserver.sh && \
 FROM jlesage/baseimage-gui:ubuntu-24.04-v4.11.3
 ARG DEBIAN_FRONTEND=noninteractive
 ARG WINE_PACKAGE_VERSION
+ARG WINETRICKS_COMMIT=08304e81f9ac9a83c552a6bd78689040d174bf95
+ARG WINETRICKS_SHA256=954d17f56ae5f4d32eb083193a4a838c73ae5ff6b91765d93b0eab59cf2e7d29
 
 ENV WINEPREFIX=/config/wine/
 ENV LANG=en_US.UTF-8
@@ -39,9 +41,10 @@ ENV WINEDEBUG=-all
 ENV DISPLAY=:0
 
 # Install the latest stable WineHQ build with 32-bit support (Backblaze is a
-# 32-bit application). winetricks is fetched upstream instead of from apt, since
-# the Ubuntu package depends on the distro's own wine and would conflict with
-# WineHQ. cabextract + 7zip are needed by winetricks to install .NET 4.8.
+# 32-bit application). A pinned winetricks revision is fetched upstream instead
+# of from apt, since the Ubuntu package depends on the distro's own wine and
+# would conflict with WineHQ. cabextract + 7zip are needed by winetricks to
+# install .NET 4.8.
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl xvfb locales cabextract 7zip && \
@@ -50,7 +53,9 @@ RUN dpkg --add-architecture i386 && \
     curl -fsSL https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources -o /etc/apt/sources.list.d/winehq-noble.sources && \
     apt-get update && \
     apt-get install -y --install-recommends "winehq-stable=$WINE_PACKAGE_VERSION" && \
-    curl -fsSL https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -o /usr/local/bin/winetricks && \
+    curl -fsSL "https://raw.githubusercontent.com/Winetricks/winetricks/${WINETRICKS_COMMIT}/src/winetricks" -o /usr/local/bin/winetricks && \
+    printf '%s  %s\n' "$WINETRICKS_SHA256" /usr/local/bin/winetricks > /tmp/winetricks.sha256 && \
+    sha256sum -c /tmp/winetricks.sha256 && rm /tmp/winetricks.sha256 && \
     chmod +x /usr/local/bin/winetricks && \
     sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen && \
     apt-get clean && rm -rf /var/lib/apt/lists/*

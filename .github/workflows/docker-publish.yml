@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dockerfile: [ubuntu22, ubuntu24]
+        dockerfile: [ubuntu22, ubuntu24, ubuntu26]
         include:
           # Ubuntu 22.04 is the default image and provides the main tags.
           - dockerfile: ubuntu22
@@ -35,6 +35,8 @@ jobs:
               ${{ github.ref_name }}
           - dockerfile: ubuntu24
             tags: ubuntu24
+          - dockerfile: ubuntu26
+            tags: ubuntu26
 
     steps:
       - name: Checkout repository
@@ -71,7 +73,7 @@ jobs:
       # Caching: GitHub Actions cache backend (type=gha) with mode=max so the
       # expensive build-time layers (apt/WineHQ install and the .NET 4.8 prefix
       # prep) are cached, not just the final image. A per-Dockerfile `scope`
-      # keeps the ubuntu22 and ubuntu24 matrix jobs from clobbering each other's
+      # keeps the ubuntu22, ubuntu24 and ubuntu26 matrix jobs from clobbering each other's
       # cache. Because the volatile rootfs/ is COPYed last in the Dockerfile, a
       # startapp.sh change reuses the cached wine/.NET layers and rebuilds fast.
       - name: Build and push Docker image
