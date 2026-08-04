@@ -49,8 +49,9 @@ RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl xvfb locales cabextract 7zip && \
     install -dm755 /etc/apt/keyrings && \
-    curl -fsSL https://dl.winehq.org/wine-builds/winehq.key -o /etc/apt/keyrings/winehq-archive.key && \
+    curl -fsSL https://dl.winehq.org/wine-builds/winehq.key -o /etc/apt/keyrings/winehq-archive.asc && \
     curl -fsSL https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources -o /etc/apt/sources.list.d/winehq-noble.sources && \
+    sed -i 's#winehq-archive[.]key#winehq-archive.asc#' /etc/apt/sources.list.d/winehq-noble.sources && \
     apt-get update && \
     apt-get install -y --install-recommends "winehq-stable=$WINE_PACKAGE_VERSION" && \
     curl -fsSL "https://raw.githubusercontent.com/Winetricks/winetricks/${WINETRICKS_COMMIT}/src/winetricks" -o /usr/local/bin/winetricks && \
