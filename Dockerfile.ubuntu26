@@ -6,8 +6,8 @@
 # rebuilt, from the WineHQ *source* package for the exact same suite and package
 # revision as the winehq-stable binaries installed below - the wineserver
 # protocol is version-locked, so the two must come from one source revision.
-ARG WINE_PACKAGE_VERSION=11.0.0.0~noble-1
-FROM ubuntu:24.04 AS wineserver-builder
+ARG WINE_PACKAGE_VERSION=11.0.0.0~resolute-1
+FROM ubuntu:26.04 AS wineserver-builder
 ARG DEBIAN_FRONTEND=noninteractive
 ARG WINE_PACKAGE_VERSION
 RUN apt-get update && \
@@ -18,11 +18,11 @@ COPY patches/ /patches/
 COPY scripts/build-wineserver.sh /usr/local/bin/build-wineserver.sh
 RUN chmod 755 /usr/local/bin/build-wineserver.sh && \
     /usr/local/bin/build-wineserver.sh \
-        noble "$WINE_PACKAGE_VERSION" \
+        resolute "$WINE_PACKAGE_VERSION" \
         "/patches/0001-server-rearm-FD_WRITE-when-reporting-a-socket-not-wri.patch" \
         /out/wineserver
 
-FROM jlesage/baseimage-gui:ubuntu-24.04-v4.11.3
+FROM jlesage/baseimage-gui:ubuntu-26.04-v4.12.6
 ARG DEBIAN_FRONTEND=noninteractive
 ARG WINE_PACKAGE_VERSION
 ARG WINETRICKS_COMMIT=08304e81f9ac9a83c552a6bd78689040d174bf95
@@ -40,18 +40,20 @@ ENV WINEDEBUG=-all
 # Set DISPLAY to allow GUI programs to be run
 ENV DISPLAY=:0
 
-# Install the latest stable WineHQ build with 32-bit support (Backblaze is a
-# 32-bit application). A pinned winetricks revision is fetched upstream instead
-# of from apt, since the Ubuntu package depends on the distro's own wine and
-# would conflict with WineHQ. cabextract + 7zip are needed by winetricks to
-# install .NET 4.8.
-RUN dpkg --add-architecture i386 && \
+# Install the latest stable WineHQ build. Resolute's WineHQ packages use the
+# new WoW64 architecture, so the amd64 package also runs Backblaze's 32-bit
+# components and no i386 repository is needed. A pinned winetricks revision is
+# fetched upstream instead of from apt, since the Ubuntu package depends on the
+# distro's own wine and would conflict with WineHQ. cabextract + 7zip are needed
+# by winetricks to install .NET 4.8. The base image links /var/log to
+# /config/log, which must exist before systemd's postinst creates its journal.
+RUN mkdir -p /config/log && \
     apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl xvfb locales cabextract 7zip && \
     install -dm755 /etc/apt/keyrings && \
     curl -fsSL https://dl.winehq.org/wine-builds/winehq.key -o /etc/apt/keyrings/winehq-archive.asc && \
-    curl -fsSL https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources -o /etc/apt/sources.list.d/winehq-noble.sources && \
-    sed -i 's#winehq-archive[.]key#winehq-archive.asc#' /etc/apt/sources.list.d/winehq-noble.sources && \
+    curl -fsSL https://dl.winehq.org/wine-builds/ubuntu/dists/resolute/winehq-resolute.sources -o /etc/apt/sources.list.d/winehq-resolute.sources && \
+    sed -i 's#winehq-archive[.]key#winehq-archive.asc#' /etc/apt/sources.list.d/winehq-resolute.sources && \
     apt-get update && \
     apt-get install -y --install-recommends "winehq-stable=$WINE_PACKAGE_VERSION" && \
     curl -fsSL "https://raw.githubusercontent.com/Winetricks/winetricks/${WINETRICKS_COMMIT}/src/winetricks" -o /usr/local/bin/winetricks && \

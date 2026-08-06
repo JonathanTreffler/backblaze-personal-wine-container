@@ -138,7 +138,10 @@ fi
 
 handle_error() {
     echo "Error: $1" >> "$log_file"
-    start_app # start app even if the updater had a problem
+    if [ -f "$bzbui_exe" ]; then
+        start_app # keep the installed app available if only its update failed
+    fi
+    exit 1 # a failed initial install must not leave an empty container running
 }
 
 # Run the installer in the FOREGROUND so it blocks until the install -- including
@@ -160,7 +163,10 @@ fetch_and_install() {
 
 start_app() {
     log_message "STARTAPP: Starting Backblaze version $(cat "$local_version_file" 2>/dev/null)"
-    cd "$backblaze_dir" 2>/dev/null
+    if ! cd "$backblaze_dir" 2>/dev/null; then
+        log_message "STARTAPP: Backblaze directory not found: $backblaze_dir"
+        return 1
+    fi
     # Backblaze is single-instance: the first launch hides in the system tray (black
     # screen); a second launch shows its control-panel window. Launch a few times so
     # the window reliably appears after a (re)start.

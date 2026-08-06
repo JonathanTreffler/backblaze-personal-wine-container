@@ -25,13 +25,13 @@ WORKDIR=/usr/src/wine-build
 
 # WineHQ's own apt repo, source component only. We never install binaries here.
 install -dm755 /etc/apt/keyrings
-curl -fsSL https://dl.winehq.org/wine-builds/winehq.key -o /etc/apt/keyrings/winehq-archive.key
+curl -fsSL https://dl.winehq.org/wine-builds/winehq.key -o /etc/apt/keyrings/winehq-archive.asc
 cat > /etc/apt/sources.list.d/winehq-src.sources <<EOF
 Types: deb-src
 URIs: https://dl.winehq.org/wine-builds/ubuntu
 Suites: ${SUITE}
 Components: main
-Signed-By: /etc/apt/keyrings/winehq-archive.key
+Signed-By: /etc/apt/keyrings/winehq-archive.asc
 EOF
 apt-get update
 
