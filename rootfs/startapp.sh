@@ -9,7 +9,7 @@ installer_url="https://www.backblaze.com/win32/install_backblaze.exe"
 wine_template="/defaults/wineprefix" # image-baked prefix, seeded into WINEPREFIX on first run
 
 export WINEARCH="win64"
-export WINEDLLOVERRIDES="mscoree=" # disable wine-mono; the prefix uses real .NET
+export WINEDLLOVERRIDES="mscoree=n" # load native .NET, not wine-mono
 
 # Modern WineHQ ships only "wine" (runs 64-bit prefixes too); fall back if present.
 if command -v wine64 >/dev/null 2>&1; then

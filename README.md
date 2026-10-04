@@ -387,6 +387,12 @@ container.
 
 ## Troubleshooting
 
+- The Backblaze installer or updater fails with MSI error 1603 and cannot load `mscoree.dll`
+
+  - **Explanation**: Backblaze's MSI custom actions need .NET Framework 4.8. Updating the image does not install it into an existing Wine prefix.
+
+  - **Solution**: Use `mscoree=n` to load native .NET. If .NET 4.8 is missing, stop the container, back up `/config/wine/`, and install it in the existing prefix. Do not replace the prefix; it holds your backup identity and state.
+
 - Upload speed is limited to about 0.7 Mbit/s per connection
 
   - **Explanation**: Backblaze client 9.0.1 and later can hit a Wine socket-notification issue that makes each upload connection wait for a timeout after sending a block of data.
